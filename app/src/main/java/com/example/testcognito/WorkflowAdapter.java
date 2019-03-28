@@ -1,6 +1,7 @@
 package com.example.testcognito;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,11 +30,15 @@ public class WorkflowAdapter extends RecyclerView.Adapter<WorkflowAdapter.ViewHo
 
     private List<WorkflowInput> mData = new ArrayList<>();;
     private LayoutInflater mInflater;
+
+    //to start activity from adapter
+    private Context context;
    // private GraphQLCall.Callback<DeleteWorkflowMutation.Data> mutationCallback;
 
     // data is passed into the constructor
     WorkflowAdapter(Context context) {
         this.mInflater = LayoutInflater.from(context);
+        this.context=context;
     }
 
     // inflates the row layout from xml when needed
@@ -65,6 +70,7 @@ public class WorkflowAdapter extends RecyclerView.Adapter<WorkflowAdapter.ViewHo
         TextView txt_name;
         TextView txt_description;
         Button delete;
+        Button set;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -85,6 +91,15 @@ public class WorkflowAdapter extends RecyclerView.Adapter<WorkflowAdapter.ViewHo
                     ClientFactory.appSyncClient().mutate(UpdateUserMutation.builder().input(updateUserInput).build())
                             .enqueue(mutationCallback);
                     removeAt(getAdapterPosition());
+                }
+            });
+
+            set = itemView.findViewById(R.id.setwf_button2);
+            set.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent addWorkflowIntent = new Intent(context , ConnectorActivity.class);
+                    context.startActivity(addWorkflowIntent);
                 }
             });
         }

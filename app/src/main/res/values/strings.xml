@@ -5,4 +5,9 @@
     <string name="delete">Delete</string>
     <string name="workflow">Workflow</string>
     <string name="setwf">set</string>
+    <string name="available_connectors">available connectors</string>
+    <string name="active_connectors">active connectors</string>
+    <string name="save_edits">save edits</string>
+    <string name="add">add</string>
+    <string name="remove">remove</string>
 </resources>
