@@ -2,6 +2,7 @@ package com.example.testcognito;
 
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,12 +35,17 @@ public class ActiveConnectorRecycleViewAdapter extends RecyclerView.Adapter<Acti
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.connector = mConnector.get(position);
-
+        Log.i("NUMERO FIELDS acrwad",String.valueOf(holder.connector.getFields().size()));
         holder.connectorName.setText( mConnector.get(position).toString() );
+
+        //remove connector
         holder.connectorRemove.setOnClickListener(view -> {
             activity.findViewById(R.id.buttonSaveConnectors).setVisibility(View.VISIBLE);
-
             activity.removeConnectorFromActive(holder.connector);
+        });
+        //set connector
+        holder.connectorSet.setOnClickListener(view->{
+            activity.setActiveConnector(holder.connector);
         });
     }
 
@@ -53,14 +59,15 @@ public class ActiveConnectorRecycleViewAdapter extends RecyclerView.Adapter<Acti
         public final View parentView;
         public final TextView connectorName;
         public final Button connectorRemove;
+        public final Button connectorSet;
         public Connector connector;
 
         public ViewHolder(View itemView) {
             super(itemView);
-
             this.parentView = itemView;
             this.connectorName = itemView.findViewById(R.id.list_item_connector_name);
             this.connectorRemove = itemView.findViewById(R.id.buttonRemoveConnector);
+            this.connectorSet = itemView.findViewById(R.id.buttonSetConnector);
         }
 
         @Override

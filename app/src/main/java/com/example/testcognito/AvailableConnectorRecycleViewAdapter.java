@@ -37,10 +37,16 @@ public class AvailableConnectorRecycleViewAdapter extends RecyclerView.Adapter<A
         holder.connector = mConnector.get(position);
 
         holder.connectorName.setText( mConnector.get(position).toString() );
+
+        //add connector to active
         holder.connectorAdd.setOnClickListener(view -> {
             activity.findViewById(R.id.buttonSaveConnectors).setVisibility(View.VISIBLE);
 
-            Connector cn = new Connector(holder.connectorName.getText().toString(), "http://www.url.com");
+            Connector cn = mConnector.get(holder.getAdapterPosition());
+            /*Connector cn = new Connector.ConnectorBuilder()
+                    .name(holder.connectorName.getText().toString())
+                    .type(holder.connector.getType())
+                    .build();*/
             activity.addConnectorToActive(cn);
         });
     }

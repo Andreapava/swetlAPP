@@ -1,6 +1,7 @@
 package com.example.testcognito;
 
 
+import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -50,11 +51,20 @@ public class ConnectorActivity extends AppCompatActivity {
 
     public void setConnectors() {
         // 1. CONNECTOR - Feed RSS
-        Connector feedRSS = new Connector("Feed RSS", "www.rss.com");
+        Connector feedRSS = new Connector.ConnectorBuilder()
+                .name("Feed RSS")
+                .addField("URL")
+                .addField("URL2")
+                .build();
         mConnectors.add(feedRSS);
         mAvailableConnectorAdapter.notifyItemInserted(mConnectors.indexOf(feedRSS));
 
         // 2. CONNECTOR - More coming later...
+        Connector message = new Connector.ConnectorBuilder()
+                .name("Message")
+                .build();
+        mConnectors.add(message);
+        mAvailableConnectorAdapter.notifyItemInserted(mConnectors.indexOf(feedRSS));
 
         //Set the "SAVE EDITS" button as not visible
         findViewById(R.id.buttonSaveConnectors).setVisibility(View.GONE);
@@ -68,6 +78,12 @@ public class ConnectorActivity extends AppCompatActivity {
     public void removeConnectorFromActive(Connector cn) {
         mActiveConnectors.remove(cn);
         mActiveConnectorAdapter.notifyItemRemoved(mActiveConnectors.indexOf(cn));
+    }
+
+    public void setActiveConnector(Connector cn) {
+        Intent addWorkflowIntent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
+        addWorkflowIntent.putExtra("connector",cn);
+        ConnectorActivity.this.startActivity(addWorkflowIntent);
     }
 
 }

@@ -16,11 +16,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AddWorkflowActivity"></activity>
-        <activity android:name=".ConnectorActivity"></activity>
+        <activity android:name=".SetConnectorActivity"></activity>
+        <activity android:name=".AddWorkflowActivity" />
+        <activity android:name=".ConnectorActivity" />
         <activity
             android:name=".MainActivity"
-            android:label="@string/workflow"></activity>
+            android:label="@string/workflow" />
         <activity
             android:name=".AuthenticationActivity"
             android:noHistory="true">
