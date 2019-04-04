@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
         com.example.testcognito.ClientFactory.init(this);
 
+        initializeUser();
+
         //bottone + fa partire activity di aggiunta nuovo workflow
         FloatingActionButton btnAddWorkflow = findViewById(R.id.btn_addWorkflow);
         btnAddWorkflow.setOnClickListener(new View.OnClickListener() {
@@ -109,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                     List<WorkflowInput> auxWfList = new ArrayList<>();
                     for (GetUserQuery.Workflow wf : response.data().getUser().workflow()) {
                         auxWfList.add(WorkflowInput.builder()
-                                .idwf("TODO generare")
+                                .idwf(wf.idwf())
                                 .name(wf.name())
                                 .def(wf.def())
                                 .build());
@@ -131,8 +133,8 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    //Per inizializzare utente //TODO: mettere questo codice alla registrazione dell' utente
-    public void testNuovoDb(View view){
+    //Per inizializzare ut
+    public void initializeUser(){
         CreateUserInput input = CreateUserInput.builder()
                   .id(AWSMobileClient.getInstance().getUsername())
                   .name("TODO: nickname")
@@ -144,6 +146,6 @@ public class MainActivity extends AppCompatActivity {
         com.example.testcognito.ClientFactory.appSyncClient().mutate(addUserMutation).enqueue(null);
 
     }
-    //per ottenere altri attributi da cognito, es. "email"
+    //per ottenere altri attributi da cognito, es. email o nickname
     //AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("email")
 }

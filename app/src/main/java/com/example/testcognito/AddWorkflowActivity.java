@@ -42,8 +42,8 @@ public class AddWorkflowActivity extends AppCompatActivity {
     private void save(){
         final String name = ((EditText) findViewById(R.id.editTxt_name)).getText().toString();
         MainActivity.wfList.add(WorkflowInput.builder()
-                        .idwf("TODO generare")
                         .def("Campo descrizione")
+                        .idwf(String.valueOf(MainActivity.wfList.hashCode()))
                         .name(name)
                         .build());
 

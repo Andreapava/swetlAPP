@@ -2,16 +2,15 @@ package com.example.testcognito;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Connector implements Serializable {
 
     private String cnName;
     private String cnType;
-    private String cnDef;
+    private String cnAction;
     private Integer paramNumber;
+    private Integer cnPosition;
     //TODO: list?
     private List<String> paramFields;
     private String param1;
@@ -21,8 +20,9 @@ public class Connector implements Serializable {
     public static class ConnectorBuilder {
         private String cnName;
         private String cnType;
-        private String cnDef;
+        private String cnAction;
         private Integer paramNumber;
+        private Integer cnPosition;
         //TODO: list?
         private List<String> paramFields= new ArrayList<>();
         private String param1;
@@ -31,7 +31,7 @@ public class Connector implements Serializable {
 
 
         public Connector build() {
-            return new Connector(cnName,cnType,cnDef,paramFields,paramNumber,param1,param2,param3);
+            return new Connector(cnName,cnType,cnAction,paramFields,paramNumber,cnPosition,param1,param2,param3);
         }
         public ConnectorBuilder name(String name) {
             this.cnName = name;
@@ -43,13 +43,18 @@ public class Connector implements Serializable {
             return this;
         }
 
-        public ConnectorBuilder definition(String def) {
-            this.cnDef = def;
+        public ConnectorBuilder action(String action) {
+            this.cnAction = action;
             return this;
         }
 
         public ConnectorBuilder paramNumber(Integer number) {
             this.paramNumber = number;
+            return this;
+        }
+
+        public ConnectorBuilder position(Integer position) {
+            this.cnPosition = position;
             return this;
         }
 
@@ -73,12 +78,13 @@ public class Connector implements Serializable {
             return this;
         }
     }
-    private Connector(String cnName, String cnType, String cnDef, List<String> paramFields, Integer paramNumber, String param1, String param2, String param3) {
+    private Connector(String cnName, String cnType, String cnDef, List<String> paramFields, Integer paramNumber, Integer cnPosition, String param1, String param2, String param3) {
         this.cnName=cnName;
         this.cnType=cnType;
-        this.cnDef=cnDef;
+        this.cnAction =cnDef;
         this.paramFields=paramFields;
         this.paramNumber=paramNumber;
+        this.cnPosition=cnPosition;
         this.param1=param1;
         this.param2=param2;
         this.param3=param3;
@@ -101,14 +107,14 @@ public class Connector implements Serializable {
             return false;
 
         Connector cn = (Connector) obj;
-        return cn.cnName.equals(cnName) && cn.cnDef.equals(cnDef) && cn.cnType.equals(cnType);
+        return cn.cnName.equals(cnName) && cn.cnAction.equals(cnAction) && cn.cnType.equals(cnType);
     }
 
     @Override
     public int hashCode() {
         int res = 17;
         res = 31 * res + cnName.hashCode();
-        res = 31 * res + cnDef.hashCode();
+        res = 31 * res + cnAction.hashCode();
         return res;
     }
 
@@ -120,7 +126,13 @@ public class Connector implements Serializable {
         return cnName;
     }
 
+    public String getAction() { return cnAction;}
+
     public List<String> getFields() { return paramFields;}
+
+    public void setPosition(int pos) { cnPosition=pos; }
+
+    public int getPosition() { return cnPosition; }
 
     public Integer getParamNumber() {return paramNumber;}
 }

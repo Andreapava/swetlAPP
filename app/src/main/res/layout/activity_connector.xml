@@ -78,6 +78,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="@string/save_edits"
+        android:onClick="saveEdit"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/saveConnectorEdits"
         app:layout_constraintStart_toStartOf="parent"

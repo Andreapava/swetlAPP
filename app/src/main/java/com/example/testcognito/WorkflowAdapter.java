@@ -93,13 +93,14 @@ public class WorkflowAdapter extends RecyclerView.Adapter<WorkflowAdapter.ViewHo
                     removeAt(getAdapterPosition());
                 }
             });
-
+            //fa partire attività di selezioen e impostazione connettori
             set = itemView.findViewById(R.id.setwf_button2);
             set.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent addWorkflowIntent = new Intent(context , ConnectorActivity.class);
-                    context.startActivity(addWorkflowIntent);
+                    Intent intent = new Intent(context , ConnectorActivity.class);
+                    intent.putExtra("currentWfpos",getAdapterPosition());
+                    context.startActivity(intent);
                 }
             });
         }
