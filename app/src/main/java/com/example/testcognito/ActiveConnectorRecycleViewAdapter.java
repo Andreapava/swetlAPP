@@ -13,15 +13,22 @@ import android.widget.Toast;
 import com.example.testcognito.Connector;
 import java.util.List;
 
+import type.WorkflowInput;
+
 public class ActiveConnectorRecycleViewAdapter extends RecyclerView.Adapter<ActiveConnectorRecycleViewAdapter.ViewHolder> {
 
-    private final List<Connector> mConnector;
+    private  List<Connector> mConnector;
 
     private final ConnectorActivity activity;
 
     public ActiveConnectorRecycleViewAdapter(List<Connector> connectors, ConnectorActivity activity) {
         this.mConnector = connectors;
         this.activity = activity;
+    }
+
+    // resets the list with a new set of data
+    public void setItems(List<Connector> items) {
+        mConnector = items;
     }
 
     @Override

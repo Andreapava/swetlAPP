@@ -73,8 +73,13 @@ public class ConnectorActivity extends AppCompatActivity {
 
         currentWfPos = getIntent().getIntExtra("currentWfpos",0);
         Log.i("Current WF: ", String.valueOf(currentWfPos));
-        setConnectors();
+
+        //mostra i connettori già impostati del workflow
         retrieveUserConnectors();
+
+        //mostra i connettori disponibili
+        setConnectors();
+
     }
 
     public void setConnectors() {
@@ -97,6 +102,9 @@ public class ConnectorActivity extends AppCompatActivity {
         mConnectors.add(message);
         mAvailableConnectorAdapter.notifyItemInserted(mConnectors.indexOf(feedRSS));
 
+
+
+
         //Set the "SAVE EDITS" button as not visible
         findViewById(R.id.buttonSaveConnectors).setVisibility(View.GONE);
     }
@@ -114,14 +122,20 @@ public class ConnectorActivity extends AppCompatActivity {
         Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
         intent.putExtra("connector",cn);
         ConnectorActivity.this.startActivity(intent);
-
     }
 
-    //TODO: rimozione connettori
+    //funzionicchia
     public void removeConnectorFromActive(Connector cn) {
+        Log.d("CONNPOS,ADPTPOS,CS,APTS",String.valueOf(cn.getPosition())+" , "
+        +String.valueOf(mActiveConnectors.indexOf(cn))+" , "
+        +inputUpdateWf.size()+" , "
+        +mActiveConnectors.size());
+  
         inputUpdateWf.remove(mActiveConnectors.indexOf(cn));
-        mActiveConnectors.remove(cn);
-        mActiveConnectorAdapter.notifyItemRemoved(mActiveConnectors.indexOf(cn));
+        mActiveConnectors.remove(mActiveConnectors.indexOf(cn));
+        mActiveConnectorAdapter.setItems(mActiveConnectors);
+
+        mActiveConnectorAdapter.notifyItemRemoved(cn.getPosition());
     }
 
     public void setActiveConnector(Connector cn) {
@@ -145,6 +159,7 @@ public class ConnectorActivity extends AppCompatActivity {
 
     //aggiorna il workflow corrente con i connettori settati e restituisce la lista di workflow
     //è più un "copia modifica e sostituisci" wf
+    //TODO: attaccare i nuovi connettori a quelli vecchi gia presenti
     public List<WorkflowInput> updateWfDefinition() {
         WorkflowInput aux = MainActivity.wfList.get(currentWfPos);
         WorkflowInput toUpdate = WorkflowInput.builder()
@@ -176,6 +191,7 @@ public class ConnectorActivity extends AppCompatActivity {
                 .enqueue(getConnListCallback);
     }
 
+    //isolo il workflow e estraggo i connettori e relativi parametri
     private GraphQLCall.Callback<GetUserQuery.Data> getConnListCallback = new GraphQLCall.Callback<GetUserQuery.Data>() {
         @Override
         public void onResponse(@Nonnull Response<GetUserQuery.Data> response) {
@@ -190,6 +206,7 @@ public class ConnectorActivity extends AppCompatActivity {
                                 JSONObject j = new JSONObject(w.def());
                                 JSONArray jsonArray = j.getJSONArray("actions_records");
                                 Log.i("ANDREA JSONARRAY", jsonArray.toString(1));
+                                showConnectors(jsonArray);
                             } catch (JSONException e)
                             {
                                 Log.i("ANDREA JSON",e.getMessage());
@@ -212,5 +229,38 @@ public class ConnectorActivity extends AppCompatActivity {
             Log.e("ERROR", e.toString());
         }
     };
+    public void showConnectors(JSONArray jsonArray) {
+        inputUpdateWf.clear();
+        ArrayList<Connector> auxConnList = new ArrayList<>();
+        Log.i("ANDREA LENGHT JARRAY",String.valueOf(jsonArray.length()));
+        for(int i=0; i<jsonArray.length(); i++) {
+            try {
+                Connector cn;
+                auxConnList.add(
+                      cn =   new Connector.ConnectorBuilder()
+                                .action(new JSONObject(jsonArray.get(i).toString()).getString("action"))
+                                .name(new JSONObject(jsonArray.get(i).toString()).getString("action"))
+                                .type(new JSONObject(jsonArray.get(i).toString()).getString("action"))
+                              .position(i)
+                              .build()
+                );
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mActiveConnectorAdapter.setItems(auxConnList);
+                        mActiveConnectorAdapter.notifyDataSetChanged();
+                        Log.i("ANDREA POS RETRIEVE",String.valueOf(cn.getPosition()));
+                    }
+                });
+                mActiveConnectors=auxConnList;
+                inputUpdateWf.add(jsonArray.get(i).toString());
+                Log.i("ANDREA IUWF",String.valueOf(inputUpdateWf.size()));
+
+            }catch (JSONException e) {
+                Log.i("ANDREA",e.getMessage());
+            }
+        }
+    }
 
 }
