@@ -84,6 +84,7 @@ public class WorkflowAdapter extends RecyclerView.Adapter<WorkflowAdapter.ViewHo
                 public void onClick(View view) {
                     Toast.makeText( view.getContext(), MainActivity.wfList.get(getAdapterPosition()).name()+" eliminato", Toast.LENGTH_SHORT).show();
                     MainActivity.wfList.remove(0);
+                    ConnectorActivity.inputUpdateWf.clear();
                     UpdateUserInput updateUserInput = UpdateUserInput.builder()
                             .id(AWSMobileClient.getInstance().getUsername())
                             .workflow(MainActivity.wfList)

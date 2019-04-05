@@ -7,8 +7,15 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import com.google.gson.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SetConnectorActivity extends AppCompatActivity {
     
@@ -49,36 +56,27 @@ public class SetConnectorActivity extends AppCompatActivity {
     // utilizzata da connectorActivity
     public void saveAllParameters(View view) {
         List <String> pList = mAdapter.retrieveParameters();
-        String s = "{\\\"actions_records\\\":[{\\\"action\\\":\\\""
-                    +connector.getAction()
-                    +formatParameters(pList);
-        Log.i("ANDREAedittext=",s);
+        try {
+            //creo JSON del connettore
+            Map<String, Object> connMap = new HashMap<>();
+            connMap.put("action",connector.getAction());
+            connMap.put("params",pList);
+            JSONObject jsonObject = new JSONObject(connMap);
+            Log.i("ANDREA JSON", jsonObject.toString(1));
 
-        ConnectorActivity.inputUpdateWf.add(connector.getPosition(),s);
-        Log.i("ANDREA UPDATE", ConnectorActivity.inputUpdateWf.toString());
-        //sostituisco i parametri del connettore vecchio se presente
-        //TODO: qua  a volte succedono casini
-        if(ConnectorActivity.inputUpdateWf.get(connector.getPosition()+1)!=null)
-        ConnectorActivity.inputUpdateWf.remove(connector.getPosition()+1);
+            //lo salvo nella lista inputUpdateWf
+            ConnectorActivity.inputUpdateWf.add(jsonObject.toString());
+            Log.i("ANDREA UPDATE", ConnectorActivity.inputUpdateWf.toString());
 
-        SetConnectorActivity.this.finish();
-    }
-
-    //Ritorna una stringa da concatenare al JSON del connettore contenente
-    // i parametri opportunemente formattati
-    public String formatParameters(List<String> pList) {
-        String formattedS= "\\,"+"\\params :[";
-        for(int i=0;i<pList.size();i++) {
-
-            //virgola finale o no
-            if(i+1!=pList.size())
-                formattedS+=pList.get(i)+"\\"+",";
-            else
-                formattedS+=pList.get(i)+"\\";
-
+            //sostituisco i parametri del connettore vecchio se presente
+            //TODO: aggiornamento connettori
+            /*if(ConnectorActivity.inputUpdateWf.get(connector.getPosition()+1)!=null)
+                ConnectorActivity.inputUpdateWf.remove(connector.getPosition()+1);*/
         }
-        formattedS+="]}]}";
-        return formattedS;
+        catch (JSONException e) {
+            Log.i("ANDREA JSON",e.getMessage());
+        }
+        SetConnectorActivity.this.finish();
     }
     //esempio formato json parametri
     //{\"actions_records\":[{\"action\":\"tv_schedule\",\"params\":[\"cielo\",\"19:00\"]}]}

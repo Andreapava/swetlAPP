@@ -35,7 +35,7 @@ public class ActiveConnectorRecycleViewAdapter extends RecyclerView.Adapter<Acti
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.connector = mConnector.get(position);
-        Log.i("NUMERO FIELDS acrwad",String.valueOf(holder.connector.getFields().size()));
+        Log.i("NUMERO FIELDS ",String.valueOf(holder.connector.getFields().size()));
         holder.connectorName.setText( mConnector.get(position).toString() );
 
         //remove connector
@@ -43,6 +43,7 @@ public class ActiveConnectorRecycleViewAdapter extends RecyclerView.Adapter<Acti
             activity.findViewById(R.id.buttonSaveConnectors).setVisibility(View.VISIBLE);
             activity.removeConnectorFromActive(holder.connector);
         });
+
         //set connector
         holder.connectorSet.setOnClickListener(view->{
             activity.setActiveConnector(holder.connector);

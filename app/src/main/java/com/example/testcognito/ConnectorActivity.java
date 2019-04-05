@@ -12,12 +12,25 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.amplify.generated.graphql.GetUserQuery;
 import com.amazonaws.amplify.generated.graphql.UpdateUserMutation;
 import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
+import com.apollographql.apollo.GraphQLCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
 import com.example.testcognito.Connector;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 import type.UpdateUserInput;
 import type.WorkflowInput;
@@ -61,6 +74,7 @@ public class ConnectorActivity extends AppCompatActivity {
         currentWfPos = getIntent().getIntExtra("currentWfpos",0);
         Log.i("Current WF: ", String.valueOf(currentWfPos));
         setConnectors();
+        retrieveUserConnectors();
     }
 
     public void setConnectors() {
@@ -90,11 +104,17 @@ public class ConnectorActivity extends AppCompatActivity {
     public void addConnectorToActive(Connector cn) {
         mActiveConnectors.add(cn);
         mActiveConnectorAdapter.notifyItemInserted(mActiveConnectors.indexOf(cn));
+
         //salvo nel connettore la sua posizione nella lista di connettori attivi
-        cn.setPosition(mActiveConnectors.indexOf(cn));
-        //aggiungo stringa vuota per non creare null ref quando la sostituirò
-        //con l' effettiva stringa
-        inputUpdateWf.add("");
+        cn.setPosition(mActiveConnectorAdapter.getItemCount());
+
+        //cn.setPosition(mActiveConnectors.indexOf(cn));
+        Log.i("ANDREA POS",String.valueOf(cn.getPosition()));
+
+        Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
+        intent.putExtra("connector",cn);
+        ConnectorActivity.this.startActivity(intent);
+
     }
 
     //TODO: rimozione connettori
@@ -129,7 +149,7 @@ public class ConnectorActivity extends AppCompatActivity {
         WorkflowInput aux = MainActivity.wfList.get(currentWfPos);
         WorkflowInput toUpdate = WorkflowInput.builder()
                 .idwf(aux.idwf())
-                .def(inputUpdateWf.toString())
+                .def(createWFdef(inputUpdateWf).toString())
                 .name(aux.name())
                 .build();
 
@@ -141,4 +161,56 @@ public class ConnectorActivity extends AppCompatActivity {
         Log.i("ANDREA UPDATE", inputUpdateWf.toString());
         return MainActivity.wfList;
     }
+
+    public JSONObject createWFdef(List<String> list) {
+        Map<String, Object> m = new HashMap<>();
+        m.put("actions_records",list);
+        JSONObject j = new JSONObject(m);
+        return j;
+    }
+
+    public void retrieveUserConnectors () {
+        com.example.testcognito.ClientFactory.appSyncClient()
+                .query(GetUserQuery.builder().id(AWSMobileClient.getInstance().getUsername()).build())
+                .responseFetcher(AppSyncResponseFetchers.CACHE_AND_NETWORK)
+                .enqueue(getConnListCallback);
+    }
+
+    private GraphQLCall.Callback<GetUserQuery.Data> getConnListCallback = new GraphQLCall.Callback<GetUserQuery.Data>() {
+        @Override
+        public void onResponse(@Nonnull Response<GetUserQuery.Data> response) {
+            if(response!=null && response.data()!=null && response.data().getUser()!=null) {
+                if (response.data().getUser().workflow() != null) {
+                    List<Connector> auxWfList = new ArrayList<>();
+                    for(GetUserQuery.Workflow w : response.data().getUser().workflow())
+                    {
+                        if(w.idwf().equals(MainActivity.wfList.get(currentWfPos).idwf())) {
+                            Log.i("ANDREA FINDWF", w.def());
+                            try {
+                                JSONObject j = new JSONObject(w.def());
+                                JSONArray jsonArray = j.getJSONArray("actions_records");
+                                Log.i("ANDREA JSONARRAY", jsonArray.toString(1));
+                            } catch (JSONException e)
+                            {
+                                Log.i("ANDREA JSON",e.getMessage());
+                            }
+                        }
+                    }
+                  /*  wfList=auxWfList;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mActiveConnectorAdapter.setItems(wfList);
+                            mActiveConnectorAdapter.notifyDataSetChanged();
+                        }
+                    });*/
+                }
+            }
+        }
+        @Override
+        public void onFailure(@Nonnull ApolloException e) {
+            Log.e("ERROR", e.toString());
+        }
+    };
+
 }
