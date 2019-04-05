@@ -130,7 +130,7 @@ public class ConnectorActivity extends AppCompatActivity {
         +String.valueOf(mActiveConnectors.indexOf(cn))+" , "
         +inputUpdateWf.size()+" , "
         +mActiveConnectors.size());
-  
+
         inputUpdateWf.remove(mActiveConnectors.indexOf(cn));
         mActiveConnectors.remove(mActiveConnectors.indexOf(cn));
         mActiveConnectorAdapter.setItems(mActiveConnectors);
