@@ -1,8 +1,14 @@
 package com.example.testcognito;
 
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +26,9 @@ import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.example.testcognito.Connector;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +52,8 @@ public class ConnectorActivity extends AppCompatActivity {
 
     public static List<String> inputUpdateWf = new ArrayList<>();
 
+    public static Map<Connector,String> inputUpdateWfMap = new HashMap<>();
+
     private RecyclerView mRecyclerViewAvailable;
 
     private RecyclerView mRecyclerViewActive;
@@ -56,11 +67,14 @@ public class ConnectorActivity extends AppCompatActivity {
 
     private int currentWfPos;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mActiveConnectors.clear();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connector);
-        Log.i("ANDREA oncreate", inputUpdateWf.toString());
+       // Log.i("ANDREA oncreate", inputUpdateWf.toString());
         //RecyclerView setup - available connectors
         mRecyclerViewAvailable = findViewById(R.id.availableConnectorsRecycle);
         mRecyclerViewAvailable.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -73,6 +87,8 @@ public class ConnectorActivity extends AppCompatActivity {
 
         currentWfPos = getIntent().getIntExtra("currentWfpos",0);
         Log.i("Current WF: ", String.valueOf(currentWfPos));
+
+
 
         //mostra i connettori già impostati del workflow
         retrieveUserConnectors();
@@ -88,7 +104,6 @@ public class ConnectorActivity extends AppCompatActivity {
                 .name("Feed RSS")
                 .action("read_feed")
                 .addField("URL")
-                .addField("URL2")
                 .build();
         mConnectors.add(feedRSS);
         mAvailableConnectorAdapter.notifyItemInserted(mConnectors.indexOf(feedRSS));
@@ -100,44 +115,80 @@ public class ConnectorActivity extends AppCompatActivity {
                 .addField("Message body")
                 .build();
         mConnectors.add(message);
+
+        // 2. CONNECTOR - Weather information
+        Connector meteo= new Connector.ConnectorBuilder()
+                .name("Weather")
+                .action("weather")
+                .addField("longitude")
+                .addField("latitude")
+                .build();
+        mConnectors.add(meteo);
+
+        Connector twitterRead= new Connector.ConnectorBuilder()
+                .name("Read Tweet")
+                .action("read_tweet")
+                .addField("account name (es. @unipd)")
+                .build();
+        mConnectors.add(twitterRead);
+
+        Connector twitterWrite= new Connector.ConnectorBuilder()
+                .name("Write Tweet")
+                .action("read_tweet")
+                .addField("Tweet body")
+                .build();
+        mConnectors.add(twitterWrite);
+
         mAvailableConnectorAdapter.notifyItemInserted(mConnectors.indexOf(feedRSS));
-
-
-
 
         //Set the "SAVE EDITS" button as not visible
         findViewById(R.id.buttonSaveConnectors).setVisibility(View.GONE);
     }
 
     public void addConnectorToActive(Connector cn) {
-        mActiveConnectors.add(cn);
-        mActiveConnectorAdapter.notifyItemInserted(mActiveConnectors.indexOf(cn));
-
-        //salvo nel connettore la sua posizione nella lista di connettori attivi
-        cn.setPosition(mActiveConnectorAdapter.getItemCount());
 
         //cn.setPosition(mActiveConnectors.indexOf(cn));
-        Log.i("ANDREA POS",String.valueOf(cn.getPosition()));
-
+       // Log.i("ANDREA POS",String.valueOf(cn.getPosition()));
+        mActiveConnectors.add(cn);
         Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
         intent.putExtra("connector",cn);
         ConnectorActivity.this.startActivity(intent);
+
+
+
+
+        mActiveConnectorAdapter.notifyItemInserted(mActiveConnectors.indexOf(cn));
+        //salvo nel connettore la sua posizione nella lista di connettori attivi
+
+        cn.setPosition(mActiveConnectorAdapter.getItemCount()-1);
+
     }
+
 
     //funzionicchia
     public void removeConnectorFromActive(Connector cn) {
-        Log.d("CONNPOS,ADPTPOS,CS,APTS",String.valueOf(cn.getPosition())+" , "
+        Log.d("CONNPOS,ADPTPOS,CS,APTS",
+                String.valueOf(cn.getPosition())+" , "
         +String.valueOf(mActiveConnectors.indexOf(cn))+" , "
         +inputUpdateWf.size()+" , "
         +mActiveConnectors.size());
 
-        inputUpdateWf.remove(mActiveConnectors.indexOf(cn));
+
+         removeFromInputUpdate(cn);
+       // inputUpdateWf.remove(mActiveConnectors.indexOf(cn));
+
         mActiveConnectors.remove(mActiveConnectors.indexOf(cn));
         mActiveConnectorAdapter.setItems(mActiveConnectors);
 
         mActiveConnectorAdapter.notifyItemRemoved(cn.getPosition());
     }
 
+    //TODO: risolvi sta bestia
+    public void removeFromInputUpdate(Connector cn) {
+        if(inputUpdateWf.contains(cn)) {
+            inputUpdateWf.remove(inputUpdateWf.indexOf(cn));
+        }
+    }
     public void setActiveConnector(Connector cn) {
         Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
         intent.putExtra("connector",cn);
@@ -164,7 +215,11 @@ public class ConnectorActivity extends AppCompatActivity {
         WorkflowInput aux = MainActivity.wfList.get(currentWfPos);
         WorkflowInput toUpdate = WorkflowInput.builder()
                 .idwf(aux.idwf())
-                .def(createWFdef(inputUpdateWf).toString())
+                .def(createWFdef(inputUpdateWf).toString()
+                        .replace("\\","")
+                        .replace("records\":[\"","records\":[")
+                        .replace("}\"]}","}]}"))
+
                 .name(aux.name())
                 .build();
 
@@ -213,14 +268,6 @@ public class ConnectorActivity extends AppCompatActivity {
                             }
                         }
                     }
-                  /*  wfList=auxWfList;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mActiveConnectorAdapter.setItems(wfList);
-                            mActiveConnectorAdapter.notifyDataSetChanged();
-                        }
-                    });*/
                 }
             }
         }
@@ -229,6 +276,7 @@ public class ConnectorActivity extends AppCompatActivity {
             Log.e("ERROR", e.toString());
         }
     };
+
     public void showConnectors(JSONArray jsonArray) {
         inputUpdateWf.clear();
         ArrayList<Connector> auxConnList = new ArrayList<>();
@@ -236,14 +284,17 @@ public class ConnectorActivity extends AppCompatActivity {
         for(int i=0; i<jsonArray.length(); i++) {
             try {
                 Connector cn;
-                auxConnList.add(
+
+
                       cn =   new Connector.ConnectorBuilder()
                                 .action(new JSONObject(jsonArray.get(i).toString()).getString("action"))
                                 .name(new JSONObject(jsonArray.get(i).toString()).getString("action"))
                                 .type(new JSONObject(jsonArray.get(i).toString()).getString("action"))
-                              .position(i)
-                              .build()
-                );
+                                .position(i)
+                                .build();
+                      cn.setBeenSet(true);
+
+                auxConnList.add(cn);
 
                 runOnUiThread(new Runnable() {
                     @Override

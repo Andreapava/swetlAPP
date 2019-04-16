@@ -29,8 +29,8 @@ import type.WorkflowInput;
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView mRecyclerView;
-    com.example.testcognito.WorkflowAdapter mAdapter;
+    public RecyclerView mRecyclerView;
+    public com.example.testcognito.WorkflowAdapter mAdapter;
     private GraphQLCall.Callback<CreateUserMutation.Data> mutationCallback;
     public static List<WorkflowInput> wfList = new ArrayList<>();
 
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         com.example.testcognito.ClientFactory.init(this);
 
-        initializeUser();
+        //initializeUser();
 
         //bottone + fa partire activity di aggiunta nuovo workflow
         FloatingActionButton btnAddWorkflow = findViewById(R.id.btn_addWorkflow);
@@ -98,7 +98,9 @@ public class MainActivity extends AppCompatActivity {
     //ottiene la lista di workFlow dell'utente collegato
     public void queryWfList(){
         com.example.testcognito.ClientFactory.appSyncClient()
-                .query(GetUserQuery.builder().id(AWSMobileClient.getInstance().getUsername()).build())
+                .query(GetUserQuery.builder()
+                        .id(AWSMobileClient.getInstance().getUsername())
+                        .build())
                 .responseFetcher(AppSyncResponseFetchers.CACHE_AND_NETWORK)
                 .enqueue(getWfListCallback);
     }
@@ -134,17 +136,21 @@ public class MainActivity extends AppCompatActivity {
     };
 
     //Per inizializzare ut
+    //TODO: fai la callback
     public void initializeUser(){
-        CreateUserInput input = CreateUserInput.builder()
-                  .id(AWSMobileClient.getInstance().getUsername())
-                  .name("TODO: nickname")
-                  .build();
+        try {
+            CreateUserInput input = CreateUserInput.builder()
+                    .id(AWSMobileClient.getInstance().getUsername())
+                    .name(AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name"))
+                    .build();
 
-        CreateUserMutation addUserMutation = CreateUserMutation.builder()
-                .input(input)
-                .build();
-        com.example.testcognito.ClientFactory.appSyncClient().mutate(addUserMutation).enqueue(null);
-
+            CreateUserMutation addUserMutation = CreateUserMutation.builder()
+                    .input(input)
+                    .build();
+            com.example.testcognito.ClientFactory.appSyncClient().mutate(addUserMutation).enqueue(null);
+        }catch(Exception e){
+            Log.i("ANDREA excpetion",e.getLocalizedMessage());
+        }
     }
     //per ottenere altri attributi da cognito, es. email o nickname
     //AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("email")

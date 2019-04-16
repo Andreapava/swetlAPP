@@ -11,7 +11,7 @@ public class Connector implements Serializable {
     private String cnAction;
     private Integer paramNumber;
     private Integer cnPosition;
-    //TODO: list?
+    private Boolean beenSet;
     private List<String> paramFields;
     private String param1;
     private String param2;
@@ -88,6 +88,7 @@ public class Connector implements Serializable {
         this.param1=param1;
         this.param2=param2;
         this.param3=param3;
+        this.beenSet=false;
     }
 
 
@@ -131,6 +132,12 @@ public class Connector implements Serializable {
     public List<String> getFields() { return paramFields;}
 
     public void setPosition(int pos) { cnPosition=pos; }
+
+    public void setBeenSet(Boolean bS) {
+        beenSet=bS;
+    }
+
+    public Boolean getBeenSet() { return beenSet;}
 
     public int getPosition() { return cnPosition; }
 

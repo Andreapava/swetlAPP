@@ -54,8 +54,25 @@ public class AuthenticationActivity extends AppCompatActivity {
         try {
             AWSMobileClient.getInstance().showSignIn(this,
                     SignInUIOptions.builder().nextActivity(MainActivity.class).build());
+            initializeUser();
         } catch (Exception e) {
             Log.e(TAG, e.toString());
+        }
+    }
+
+    public void initializeUser(){
+        try {
+            CreateUserInput input = CreateUserInput.builder()
+                    .id(AWSMobileClient.getInstance().getUsername())
+                    .name(AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name"))
+                    .build();
+
+            CreateUserMutation addUserMutation = CreateUserMutation.builder()
+                    .input(input)
+                    .build();
+            com.example.testcognito.ClientFactory.appSyncClient().mutate(addUserMutation).enqueue(null);
+        }catch(Exception e){
+            Log.i("ANDREA excpetion",e.getLocalizedMessage());
         }
     }
 
