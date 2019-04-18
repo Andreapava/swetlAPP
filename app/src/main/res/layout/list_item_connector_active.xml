@@ -26,6 +26,7 @@
 
     <Button
         android:id="@+id/buttonSetConnector"
+        android:theme="@style/setBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -38,6 +39,7 @@
 
     <Button
         android:id="@+id/buttonRemoveConnector"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"

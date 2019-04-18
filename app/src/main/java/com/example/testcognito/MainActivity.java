@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_logout: {
                 Intent i = new Intent(MainActivity.this, AuthenticationActivity.class);
-                finish();
+                //finish();
                 AWSMobileClient.getInstance().signOut();
                 startActivity(i);
                 return true;

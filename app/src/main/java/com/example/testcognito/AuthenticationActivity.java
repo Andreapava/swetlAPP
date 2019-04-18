@@ -17,13 +17,15 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     private final String TAG = AuthenticationActivity.class.getSimpleName();
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
 
         AWSMobileClient.getInstance().initialize(getApplicationContext(), new Callback<UserStateDetails>() {
-
+            //TODO: da main activity  non entra qui (logout)
             @Override
             public void onResult(UserStateDetails userStateDetails) {
                 Log.i(TAG, userStateDetails.getUserState().toString());
@@ -42,7 +44,6 @@ public class AuthenticationActivity extends AppCompatActivity {
                         break;
                 }
             }
-
             @Override
             public void onError(Exception e) {
                 Log.e(TAG, e.toString());
@@ -50,10 +51,12 @@ public class AuthenticationActivity extends AppCompatActivity {
         });
     }
 
+
+
     private void showSignIn() {
         try {
             AWSMobileClient.getInstance().showSignIn(this,
-                    SignInUIOptions.builder().nextActivity(MainActivity.class).build());
+                    SignInUIOptions.builder().logo(R.drawable.logo_swetlapp).nextActivity(MainActivity.class).build());
             initializeUser();
         } catch (Exception e) {
             Log.e(TAG, e.toString());

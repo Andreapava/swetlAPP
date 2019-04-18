@@ -134,10 +134,18 @@ public class ConnectorActivity extends AppCompatActivity {
 
         Connector twitterWrite= new Connector.ConnectorBuilder()
                 .name("Write Tweet")
-                .action("read_tweet")
+                .action("write_tweet")
                 .addField("Tweet body")
                 .build();
         mConnectors.add(twitterWrite);
+
+        Connector tvSchedule= new Connector.ConnectorBuilder()
+                .name("TV Schedule")
+                .action("tv_schedule")
+                .addField("TODO")
+                .build();
+        mConnectors.add(tvSchedule);
+
 
         mAvailableConnectorAdapter.notifyItemInserted(mConnectors.indexOf(feedRSS));
 
@@ -206,6 +214,7 @@ public class ConnectorActivity extends AppCompatActivity {
                 .input(input)
                 .build();
         com.example.testcognito.ClientFactory.appSyncClient().mutate(updateUserMutation).enqueue(null);
+    Toast.makeText(ConnectorActivity.this,"Workflow saved!",Toast.LENGTH_LONG).show();
     }
 
     //aggiorna il workflow corrente con i connettori settati e restituisce la lista di workflow
@@ -218,8 +227,8 @@ public class ConnectorActivity extends AppCompatActivity {
                 .def(createWFdef(inputUpdateWf).toString()
                         .replace("\\","")
                         .replace("records\":[\"","records\":[")
-                        .replace("}\"]}","}]}"))
-
+                        .replace("}\"]}","}]}")
+                        .replace("}\",\"{\"action","},{\"action"))
                 .name(aux.name())
                 .build();
 
@@ -288,7 +297,7 @@ public class ConnectorActivity extends AppCompatActivity {
 
                       cn =   new Connector.ConnectorBuilder()
                                 .action(new JSONObject(jsonArray.get(i).toString()).getString("action"))
-                                .name(new JSONObject(jsonArray.get(i).toString()).getString("action"))
+                                .name(actionToName(new JSONObject(jsonArray.get(i).toString()).getString("action")))
                                 .type(new JSONObject(jsonArray.get(i).toString()).getString("action"))
                                 .position(i)
                                 .build();
@@ -312,6 +321,24 @@ public class ConnectorActivity extends AppCompatActivity {
                 Log.i("ANDREA",e.getMessage());
             }
         }
+    }
+
+    public String actionToName(String action) {
+        switch(action) {
+            case "read_feed":
+                return "Feed RSS";
+            case "custom_message":
+                return "Custom Message";
+            case "weather":
+                return "Weather";
+            case "read_tweet":
+                return "Read Tweet";
+            case "write_tweet":
+                return "Write Tweet";
+            case "tv_schedule":
+                return "TV Schedule";
+        }
+        return "missing name";
     }
 
 }

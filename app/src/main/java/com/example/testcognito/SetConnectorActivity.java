@@ -58,7 +58,7 @@ public class SetConnectorActivity extends AppCompatActivity {
             setFields();
         }
     }
-
+     //TODO: sistema questa oscenità
     public boolean checkWeatherConn(Connector c) {
         if(c.getAction().equals("weather")) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -73,6 +73,23 @@ public class SetConnectorActivity extends AppCompatActivity {
                     // Show an explanation to the user *asynchronously* -- don't block
                     // this thread waiting for the user's response! After the user
                     // sees the explanation, try again to request the permission.
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
+                    fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            Log.i("ANDREA LOC:",String.valueOf(location.getLatitude())
+                                    +" "+String.valueOf(location.getLongitude()));
+                            List<String> coordinates = new ArrayList<>();
+                            coordinates.add(String.valueOf(location.getLatitude()));
+                            coordinates.add(String.valueOf(location.getLongitude()));
+                            ConnectorActivity.inputUpdateWf.add(buildJsonConn(c,coordinates).toString());
+
+                            Toast.makeText(SetConnectorActivity.this, "Weather info set on your coordinates!",
+                                    Toast.LENGTH_LONG).show();
+                            SetConnectorActivity.this.finish();
+                        }
+                    });
                 } else {
                     // No explanation needed; request the permission
                     ActivityCompat.requestPermissions(this,
@@ -81,6 +98,21 @@ public class SetConnectorActivity extends AppCompatActivity {
                     // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                     // app-defined int constant. The callback method gets the
                     // result of the request.
+                    fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            Log.i("ANDREA LOC:",String.valueOf(location.getLatitude())
+                                    +" "+String.valueOf(location.getLongitude()));
+                            List<String> coordinates = new ArrayList<>();
+                            coordinates.add(String.valueOf(location.getLatitude()));
+                            coordinates.add(String.valueOf(location.getLongitude()));
+                            ConnectorActivity.inputUpdateWf.add(buildJsonConn(c,coordinates).toString());
+
+                            Toast.makeText(SetConnectorActivity.this, "Weather info set on your coordinates!",
+                                    Toast.LENGTH_LONG).show();
+                            SetConnectorActivity.this.finish();
+                        }
+                    });
                 }
             } else {
                 // Permission has already been granted
@@ -118,28 +150,32 @@ public class SetConnectorActivity extends AppCompatActivity {
     // utilizzata da connectorActivity
     public void saveAllParameters(View view) {
         List <String> pList = mAdapter.retrieveParameters();
-        try {
-            //creo JSON del connettore
-            //TODO: ho fatto il metodo
-            Map<String, Object> connMap = new HashMap<>();
-            connMap.put("action",connector.getAction());
-            connMap.put("params",pList);
-            JSONObject jsonObject = new JSONObject(connMap);
-            Log.i("ANDREA JSON", jsonObject.toString(1));
-            connector.setBeenSet(true);
-            //lo salvo nella lista inputUpdateWf
-            ConnectorActivity.inputUpdateWf.add(jsonObject.toString());
-            Log.i("ANDREA UPDATE", ConnectorActivity.inputUpdateWf.toString());
+        if (!pList.isEmpty()) {
+            try {
+                //creo JSON del connettore
+                //TODO: ho fatto il metodo
+                Map<String, Object> connMap = new HashMap<>();
+                connMap.put("action", connector.getAction());
+                connMap.put("params", pList);
+                JSONObject jsonObject = new JSONObject(connMap);
+                Log.i("ANDREA JSON", jsonObject.toString(1));
+                connector.setBeenSet(true);
+                //lo salvo nella lista inputUpdateWf
+                ConnectorActivity.inputUpdateWf.add(jsonObject.toString());
+                Log.i("ANDREA UPDATE", ConnectorActivity.inputUpdateWf.toString());
 
-            //sostituisco i parametri del connettore vecchio se presente
-            //TODO: aggiornamento connettori
+                //sostituisco i parametri del connettore vecchio se presente
+                //TODO: aggiornamento connettori
             /*if(ConnectorActivity.inputUpdateWf.get(connector.getPosition()+1)!=null)
                 ConnectorActivity.inputUpdateWf.remove(connector.getPosition()+1);*/
+            } catch (JSONException e) {
+                Log.i("ANDREA JSON", e.getMessage());
+            }
+            SetConnectorActivity.this.finish();
         }
-        catch (JSONException e) {
-            Log.i("ANDREA JSON",e.getMessage());
-        }
-        SetConnectorActivity.this.finish();
+        else
+            Toast.makeText(SetConnectorActivity.this,
+                    "Please provide the fields with some input",Toast.LENGTH_LONG).show();
     }
 
     public JSONObject buildJsonConn(Connector c, List<String> pL) {
