@@ -67,7 +67,8 @@ public class ConnectorActivity extends AppCompatActivity {
 
     private int currentWfPos;
 
-
+    static final int SETTED_CN_REQUEST = 1;
+    Boolean cnSetted=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,46 +158,60 @@ public class ConnectorActivity extends AppCompatActivity {
 
         //cn.setPosition(mActiveConnectors.indexOf(cn));
        // Log.i("ANDREA POS",String.valueOf(cn.getPosition()));
-        mActiveConnectors.add(cn);
+        Boolean cnSetted =false;
+
         Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
         intent.putExtra("connector",cn);
-        ConnectorActivity.this.startActivity(intent);
-
-
-
-
-        mActiveConnectorAdapter.notifyItemInserted(mActiveConnectors.indexOf(cn));
-        //salvo nel connettore la sua posizione nella lista di connettori attivi
-
-        cn.setPosition(mActiveConnectorAdapter.getItemCount()-1);
+        ConnectorActivity.this.startActivityForResult(intent,SETTED_CN_REQUEST);
 
     }
 
+    //l'effettivo output a video nella recycle lo fa questo metodo
+    //bisogna infatti controllare che il connettore non sia vuoto per metterlo nella recview
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (SETTED_CN_REQUEST) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    cnSetted = data.getBooleanExtra("cnSetted",false);
+                    Log.i("ANDREA DISPLAY CN",String.valueOf(cnSetted));
+                    if(cnSetted) {
+                        Connector toShow = (Connector) data.getSerializableExtra("cn");
+                        mActiveConnectors.add(toShow);
+                        mActiveConnectorAdapter.setItems(mActiveConnectors);
+                        mActiveConnectorAdapter.notifyDataSetChanged();
+                        //mActiveConnectorAdapter.notifyItemInserted(mActiveConnectors.indexOf(toShow));
+                        //salvo nel connettore la sua posizione nella lista di connettori attivi
+                        toShow.setPosition(mActiveConnectorAdapter.getItemCount()-1);
+                    }
+                }
+                break;
+            }
+        }
+    }
 
-    //funzionicchia
-    public void removeConnectorFromActive(Connector cn) {
+    //TODO: assicurati che gli indici e dimensioni tra le due liste siano coerenti
+    public void removeConnectorFromActive(Connector cn,int position) {
         Log.d("CONNPOS,ADPTPOS,CS,APTS",
                 String.valueOf(cn.getPosition())+" , "
         +String.valueOf(mActiveConnectors.indexOf(cn))+" , "
         +inputUpdateWf.size()+" , "
         +mActiveConnectors.size());
 
+        Log.i("ANDREA POSITION",String.valueOf(position));
+        Log.i("ANDREA InputUWF size",String.valueOf(inputUpdateWf.size()));
+        Log.i("ANDREA mActiveConn size",String.valueOf(mActiveConnectors.size()));
 
-         removeFromInputUpdate(cn);
-       // inputUpdateWf.remove(mActiveConnectors.indexOf(cn));
+        inputUpdateWf.remove(position);
 
-        mActiveConnectors.remove(mActiveConnectors.indexOf(cn));
+        mActiveConnectors.remove(position);
         mActiveConnectorAdapter.setItems(mActiveConnectors);
+        mActiveConnectorAdapter.notifyDataSetChanged();
+        //mActiveConnectorAdapter.notifyItemRemoved(position);
 
-        mActiveConnectorAdapter.notifyItemRemoved(cn.getPosition());
     }
 
-    //TODO: risolvi sta bestia
-    public void removeFromInputUpdate(Connector cn) {
-        if(inputUpdateWf.contains(cn)) {
-            inputUpdateWf.remove(inputUpdateWf.indexOf(cn));
-        }
-    }
     public void setActiveConnector(Connector cn) {
         Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
         intent.putExtra("connector",cn);
@@ -293,8 +308,6 @@ public class ConnectorActivity extends AppCompatActivity {
         for(int i=0; i<jsonArray.length(); i++) {
             try {
                 Connector cn;
-
-
                       cn =   new Connector.ConnectorBuilder()
                                 .action(new JSONObject(jsonArray.get(i).toString()).getString("action"))
                                 .name(actionToName(new JSONObject(jsonArray.get(i).toString()).getString("action")))
@@ -313,14 +326,15 @@ public class ConnectorActivity extends AppCompatActivity {
                         Log.i("ANDREA POS RETRIEVE",String.valueOf(cn.getPosition()));
                     }
                 });
-                mActiveConnectors=auxConnList;
+
                 inputUpdateWf.add(jsonArray.get(i).toString());
-                Log.i("ANDREA IUWF",String.valueOf(inputUpdateWf.size()));
+                Log.i("ANDREA IWF SIZE",String.valueOf(inputUpdateWf.size()));
 
             }catch (JSONException e) {
                 Log.i("ANDREA",e.getMessage());
             }
         }
+        mActiveConnectors=auxConnList;
     }
 
     public String actionToName(String action) {

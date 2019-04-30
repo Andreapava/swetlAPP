@@ -48,7 +48,7 @@ public class ActiveConnectorRecycleViewAdapter extends RecyclerView.Adapter<Acti
         //remove connector
         holder.connectorRemove.setOnClickListener(view -> {
             activity.findViewById(R.id.buttonSaveConnectors).setVisibility(View.VISIBLE);
-            activity.removeConnectorFromActive(holder.connector);
+            activity.removeConnectorFromActive(holder.connector,position);
         });
 
         //set connector

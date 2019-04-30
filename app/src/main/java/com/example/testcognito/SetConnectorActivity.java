@@ -2,6 +2,7 @@ package com.example.testcognito;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.v4.app.ActivityCompat;
@@ -35,14 +36,14 @@ public class SetConnectorActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView ;
     private ConnParametersRecycleViewAdapter mAdapter;
     private FusedLocationProviderClient fusedLocationClient;
-
+    private Boolean cnSetted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        connector= (Connector) getIntent().getSerializableExtra("connector");
+        connector = (Connector) getIntent().getSerializableExtra("connector");
         if(!checkWeatherConn(connector)) {
             setContentView(R.layout.activity_set_connector);
 
@@ -153,13 +154,11 @@ public class SetConnectorActivity extends AppCompatActivity {
         if (!pList.isEmpty()) {
             try {
                 //creo JSON del connettore
-                //TODO: ho fatto il metodo
-                Map<String, Object> connMap = new HashMap<>();
-                connMap.put("action", connector.getAction());
-                connMap.put("params", pList);
-                JSONObject jsonObject = new JSONObject(connMap);
+                JSONObject jsonObject = buildJsonConn(connector,pList);
                 Log.i("ANDREA JSON", jsonObject.toString(1));
+
                 connector.setBeenSet(true);
+                cnSetted=true;
                 //lo salvo nella lista inputUpdateWf
                 ConnectorActivity.inputUpdateWf.add(jsonObject.toString());
                 Log.i("ANDREA UPDATE", ConnectorActivity.inputUpdateWf.toString());
@@ -171,6 +170,10 @@ public class SetConnectorActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 Log.i("ANDREA JSON", e.getMessage());
             }
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("cnSetted", cnSetted);
+            resultIntent.putExtra("cn",connector);
+            setResult(Activity.RESULT_OK, resultIntent);
             SetConnectorActivity.this.finish();
         }
         else

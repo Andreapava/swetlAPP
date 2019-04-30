@@ -65,7 +65,6 @@ public class AvailableConnectorRecycleViewAdapter extends RecyclerView.Adapter<A
 
         public ViewHolder(View itemView) {
             super(itemView);
-
             this.parentView = itemView;
             this.connectorName = itemView.findViewById(R.id.list_item_activeconnector_name);
             this.connectorAdd = itemView.findViewById(R.id.buttonAddConnector);

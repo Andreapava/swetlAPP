@@ -13,7 +13,9 @@ import android.view.View;
 
 import com.amazonaws.amplify.generated.graphql.CreateUserMutation;
 import com.amazonaws.amplify.generated.graphql.GetUserQuery;
+import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.client.SignInUIOptions;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
@@ -83,10 +85,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_logout: {
-                Intent i = new Intent(MainActivity.this, AuthenticationActivity.class);
-                //finish();
+                //Intent i = new Intent(MainActivity.this, AuthenticationActivity.class);
                 AWSMobileClient.getInstance().signOut();
-                startActivity(i);
+                //IdentityManager.getDefaultIdentityManager().signOut();
+               // startActivity(i);
                 return true;
             }
             default:
@@ -135,23 +137,5 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    //Per inizializzare ut
-    //TODO: fai la callback
-    public void initializeUser(){
-        try {
-            CreateUserInput input = CreateUserInput.builder()
-                    .id(AWSMobileClient.getInstance().getUsername())
-                    .name(AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name"))
-                    .build();
 
-            CreateUserMutation addUserMutation = CreateUserMutation.builder()
-                    .input(input)
-                    .build();
-            com.example.testcognito.ClientFactory.appSyncClient().mutate(addUserMutation).enqueue(null);
-        }catch(Exception e){
-            Log.i("ANDREA excpetion",e.getLocalizedMessage());
-        }
-    }
-    //per ottenere altri attributi da cognito, es. email o nickname
-    //AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("email")
 }

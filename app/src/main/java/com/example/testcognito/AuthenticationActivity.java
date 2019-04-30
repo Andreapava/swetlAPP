@@ -6,16 +6,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.amazonaws.amplify.generated.graphql.CreateUserMutation;
+import com.amazonaws.mobile.auth.core.IdentityManager;
+import com.amazonaws.mobile.auth.core.SignInStateChangeListener;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.Callback;
 import com.amazonaws.mobile.client.SignInUIOptions;
 import com.amazonaws.mobile.client.UserStateDetails;
+import com.amazonaws.mobile.client.UserStateListener;
 
 import type.CreateUserInput;
 
 public class AuthenticationActivity extends AppCompatActivity {
 
-    private final String TAG = AuthenticationActivity.class.getSimpleName();
+//    private final String TAG = AuthenticationActivity.class.getSimpleName();
+    private final String TAG = "ANDREA";
 
 
 
@@ -23,8 +27,10 @@ public class AuthenticationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
+         Log.i("ANDREA ENTRA","s");
 
         AWSMobileClient.getInstance().initialize(getApplicationContext(), new Callback<UserStateDetails>() {
+
             //TODO: da main activity  non entra qui (logout)
             @Override
             public void onResult(UserStateDetails userStateDetails) {
@@ -49,6 +55,34 @@ public class AuthenticationActivity extends AppCompatActivity {
                 Log.e(TAG, e.toString());
             }
         });
+
+
+        AWSMobileClient.getInstance().addUserStateListener(new UserStateListener() {
+            @Override
+            public void onUserStateChanged(UserStateDetails userStateDetails) {
+                switch (userStateDetails.getUserState()){
+                    case GUEST:
+                        Log.i("userState", "user is in guest mode");
+                        break;
+                    case SIGNED_OUT:
+                        Log.i("userState", "user is signed out");
+                        showSignIn();
+                        break;
+                    case SIGNED_IN:
+                        Log.i("userState", "user is signed in");
+                        break;
+                    case SIGNED_OUT_USER_POOLS_TOKENS_INVALID:
+                        Log.i("userState", "need to login again");
+                        break;
+                    case SIGNED_OUT_FEDERATED_TOKENS_INVALID:
+                        Log.i("userState", "user logged in via federation, but currently needs new tokens");
+                        break;
+                    default:
+                        Log.e("userState", "unsupported");
+                }
+            }
+        });
+
     }
 
 
@@ -75,7 +109,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                     .build();
             com.example.testcognito.ClientFactory.appSyncClient().mutate(addUserMutation).enqueue(null);
         }catch(Exception e){
-            Log.i("ANDREA excpetion",e.getLocalizedMessage());
+            Log.i("ANDREA exception",e.getLocalizedMessage());
         }
     }
 
