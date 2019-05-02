@@ -11,6 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +23,13 @@ public class ConnParametersRecycleViewAdapter extends RecyclerView.Adapter<ConnP
     private final List<String> fieldList;
     public static List<String> paramList;
     private final SetConnectorActivity activity;
+    private final String exParams;
 
-    public ConnParametersRecycleViewAdapter(List<String> fieldList, SetConnectorActivity activity) {
+    public ConnParametersRecycleViewAdapter(List<String> fieldList, SetConnectorActivity activity, String exParams) {
         this.fieldList = fieldList;
         paramList= new ArrayList<>();
         this.activity = activity;
+        this.exParams=exParams;
     }
 
     @Override
@@ -40,15 +46,21 @@ public class ConnParametersRecycleViewAdapter extends RecyclerView.Adapter<ConnP
         //set the name of the field the user has to provide
         holder.fieldName.setText(fieldList.get(position));
 
-       /* holder.setParameter.setOnClickListener(view -> {
-            Log.i("salvare parametro per: ",holder.parameter);
-            Connector cn = new Connector(holder.connectorName.getText().toString(), "http://www.url.com", holder.connector.getType());
-            activity.addConnectorToActive(cn);
-           activity.saveAllParameters(holder.getActualParameter());
-        });*/
-
+        if(exParams!=null)
+        holder.editText.setText(extractParam(exParams,position));
     }
 
+    //estrae i parametri da produrre negli edittext
+    public String extractParam(String allParams, int position) {
+        try {
+            JSONObject o = new JSONObject(allParams);
+            JSONArray Jarray = o.getJSONArray("params");
+            return Jarray.getString(position);
+        }catch(JSONException JSONe) {
+            Log.i("ANDREA JSONEXCPT",JSONe.getMessage());
+        }
+        return "";
+    }
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         public final View parentView;

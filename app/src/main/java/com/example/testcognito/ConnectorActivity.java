@@ -212,9 +212,12 @@ public class ConnectorActivity extends AppCompatActivity {
 
     }
 
-    public void setActiveConnector(Connector cn) {
+    public void setActiveConnector(Connector cn, int position) {
         Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
         intent.putExtra("connector",cn);
+        if(inputUpdateWf.get(position)!=null) {
+            intent.putExtra("parameters", inputUpdateWf.get(position));
+        }
         ConnectorActivity.this.startActivity(intent);
     }
 
@@ -307,15 +310,17 @@ public class ConnectorActivity extends AppCompatActivity {
         Log.i("ANDREA LENGHT JARRAY",String.valueOf(jsonArray.length()));
         for(int i=0; i<jsonArray.length(); i++) {
             try {
+                String action = new JSONObject(jsonArray.get(i).toString()).getString("action");
                 Connector cn;
                       cn =   new Connector.ConnectorBuilder()
-                                .action(new JSONObject(jsonArray.get(i).toString()).getString("action"))
-                                .name(actionToName(new JSONObject(jsonArray.get(i).toString()).getString("action")))
-                                .type(new JSONObject(jsonArray.get(i).toString()).getString("action"))
+                                .action(action)
+                                .name(actionToName(action))
+                                .type(action)
                                 .position(i)
                                 .build();
                       cn.setBeenSet(true);
 
+                      cn = normalizeFields(cn);
                 auxConnList.add(cn);
 
                 runOnUiThread(new Runnable() {
@@ -323,7 +328,7 @@ public class ConnectorActivity extends AppCompatActivity {
                     public void run() {
                         mActiveConnectorAdapter.setItems(auxConnList);
                         mActiveConnectorAdapter.notifyDataSetChanged();
-                        Log.i("ANDREA POS RETRIEVE",String.valueOf(cn.getPosition()));
+                        //Log.i("ANDREA POS RETRIEVE",String.valueOf(cn.getPosition()));
                     }
                 });
 
@@ -336,7 +341,7 @@ public class ConnectorActivity extends AppCompatActivity {
         }
         mActiveConnectors=auxConnList;
     }
-
+    //funzioni per coerenza con connettori nel DB
     public String actionToName(String action) {
         switch(action) {
             case "read_feed":
@@ -353,6 +358,31 @@ public class ConnectorActivity extends AppCompatActivity {
                 return "TV Schedule";
         }
         return "missing name";
+    }
+
+    public Connector normalizeFields(Connector cn) {
+        switch(cn.getAction()) {
+            case "read_feed":
+                cn.addField("URL");
+                return cn;
+            case "custom_message":
+                cn.addField("Message body");
+                return cn;
+            case "weather":
+                cn.addField("Longitude");
+                cn.addField("Latitude");
+                return cn;
+            case "read_tweet":
+                cn.addField("account name (es. @unipd)");
+                return cn;
+            case "write_tweet":
+                cn.addField("Tweet body");
+                return cn;
+            case "tv_schedule":
+                cn.addField("Message body");
+                return cn;
+        }
+        return cn;
     }
 
 }

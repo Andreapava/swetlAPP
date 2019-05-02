@@ -53,7 +53,7 @@ public class ActiveConnectorRecycleViewAdapter extends RecyclerView.Adapter<Acti
 
         //set connector
         holder.connectorSet.setOnClickListener(view->{
-            activity.setActiveConnector(holder.connector);
+            activity.setActiveConnector(holder.connector,position);
         });
     }
 

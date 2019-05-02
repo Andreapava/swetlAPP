@@ -18,12 +18,12 @@ public class Connector implements Serializable {
     private String param3;
 
     public static class ConnectorBuilder {
+        //TODO: pulisci attributi inutili
         private String cnName;
         private String cnType;
         private String cnAction;
         private Integer paramNumber;
         private Integer cnPosition;
-        //TODO: list?
         private List<String> paramFields= new ArrayList<>();
         private String param1;
         private String param2;
@@ -136,6 +136,8 @@ public class Connector implements Serializable {
     public void setBeenSet(Boolean bS) {
         beenSet=bS;
     }
+
+    public void addField(String field) { paramFields.add(field); }
 
     public Boolean getBeenSet() { return beenSet;}
 

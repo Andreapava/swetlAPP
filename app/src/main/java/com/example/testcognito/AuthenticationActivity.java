@@ -30,8 +30,6 @@ public class AuthenticationActivity extends AppCompatActivity {
          Log.i("ANDREA ENTRA","s");
 
         AWSMobileClient.getInstance().initialize(getApplicationContext(), new Callback<UserStateDetails>() {
-
-            //TODO: da main activity  non entra qui (logout)
             @Override
             public void onResult(UserStateDetails userStateDetails) {
                 Log.i(TAG, userStateDetails.getUserState().toString());

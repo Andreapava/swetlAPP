@@ -37,24 +37,27 @@ public class SetConnectorActivity extends AppCompatActivity {
     private ConnParametersRecycleViewAdapter mAdapter;
     private FusedLocationProviderClient fusedLocationClient;
     private Boolean cnSetted;
-
+    private String exParameters;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
         connector = (Connector) getIntent().getSerializableExtra("connector");
+        exParameters = getIntent().getStringExtra("parameters");
         if(!checkWeatherConn(connector)) {
             setContentView(R.layout.activity_set_connector);
 
             fieldList = connector.getFields();
-            mAdapter = new ConnParametersRecycleViewAdapter(fieldList, this);
+            mAdapter = new ConnParametersRecycleViewAdapter(fieldList, this,exParameters);
 
             //RecyclerView setup - available connectors
             mRecyclerView = findViewById(R.id.recycler_view);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
             mRecyclerView.setAdapter(mAdapter);
 
+            if(exParameters!=null)
+            Log.i("ANDREA EXPARAM",exParameters);
             //Mostra le view (edittext) in cui digitare i valori per i campi parametri dei connettori
             setFields();
         }
