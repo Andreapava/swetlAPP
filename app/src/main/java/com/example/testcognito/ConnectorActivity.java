@@ -97,6 +97,10 @@ public class ConnectorActivity extends AppCompatActivity {
         //mostra i connettori disponibili
         setConnectors();
 
+
+
+
+
     }
 
     public void setConnectors() {

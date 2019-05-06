@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
         com.example.testcognito.ClientFactory.init(this);
 
-        //initializeUser();
+        initializeUser();
 
         //bottone + fa partire activity di aggiunta nuovo workflow
         FloatingActionButton btnAddWorkflow = findViewById(R.id.btn_addWorkflow);
@@ -137,5 +137,29 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    public static void initializeUser(){
+        String nickName = AWSMobileClient.getInstance().getUsername();
+        try {
+            //bisognerebbe settare given name obbligatorio da console cognito, questo è solo un workaround
+             nickName = AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name") != null
+                    ? AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name")
+                    : AWSMobileClient.getInstance().getUsername();
+        }catch(Exception e){
+            Log.i("ANDREA exception",e.getLocalizedMessage());
+        }finally {
+            CreateUserInput input = CreateUserInput.builder()
+                    .id(AWSMobileClient.getInstance().getUsername())
+                    .name(nickName)
+                    .build();
+
+            CreateUserMutation addUserMutation = CreateUserMutation.builder()
+                    .input(input)
+                    .build();
+            com.example.testcognito.ClientFactory.appSyncClient().mutate(addUserMutation).enqueue(null);
+
+        }
+
+
+    }
 
 }

@@ -23,7 +23,9 @@ public class ConnParametersRecycleViewAdapter extends RecyclerView.Adapter<ConnP
     private final List<String> fieldList;
     public static List<String> paramList;
     private final SetConnectorActivity activity;
-    private final String exParams;
+    private String longitude;
+    private String latitude;
+    private  String exParams;
 
     public ConnParametersRecycleViewAdapter(List<String> fieldList, SetConnectorActivity activity, String exParams) {
         this.fieldList = fieldList;
@@ -46,8 +48,17 @@ public class ConnParametersRecycleViewAdapter extends RecyclerView.Adapter<ConnP
         //set the name of the field the user has to provide
         holder.fieldName.setText(fieldList.get(position));
 
+        if(longitude!=null && latitude!= null){
+            if(position==0)
+            holder.editText.setText(longitude);
+            else
+                holder.editText.setText(latitude);
+        }
+
         if(exParams!=null)
         holder.editText.setText(extractParam(exParams,position));
+
+
     }
 
     //estrae i parametri da produrre negli edittext
@@ -60,6 +71,11 @@ public class ConnParametersRecycleViewAdapter extends RecyclerView.Adapter<ConnP
             Log.i("ANDREA JSONEXCPT",JSONe.getMessage());
         }
         return "";
+    }
+
+    public void setLocation(double lon, double lat) {
+        longitude=String.valueOf(lon);
+        latitude=String.valueOf(lat);
     }
     public static class ViewHolder extends RecyclerView.ViewHolder {
 

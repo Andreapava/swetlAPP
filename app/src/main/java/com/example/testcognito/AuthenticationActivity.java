@@ -36,7 +36,6 @@ public class AuthenticationActivity extends AppCompatActivity {
                 switch (userStateDetails.getUserState()){
                     case SIGNED_IN:
                         Intent i = new Intent(AuthenticationActivity.this, MainActivity.class);
-                        i.putExtra("USER_STATE", "SIGNED_IN");
                         startActivity(i);
                         break;
                     case SIGNED_OUT:
@@ -89,25 +88,9 @@ public class AuthenticationActivity extends AppCompatActivity {
         try {
             AWSMobileClient.getInstance().showSignIn(this,
                     SignInUIOptions.builder().logo(R.drawable.logo_swetlapp).nextActivity(MainActivity.class).build());
-            initializeUser();
+           // initializeUser();
         } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
-    }
-
-    public void initializeUser(){
-        try {
-            CreateUserInput input = CreateUserInput.builder()
-                    .id(AWSMobileClient.getInstance().getUsername())
-                    .name(AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name"))
-                    .build();
-
-            CreateUserMutation addUserMutation = CreateUserMutation.builder()
-                    .input(input)
-                    .build();
-            com.example.testcognito.ClientFactory.appSyncClient().mutate(addUserMutation).enqueue(null);
-        }catch(Exception e){
-            Log.i("ANDREA exception",e.getLocalizedMessage());
+            Log.e(TAG, e.toString()+"questo");
         }
     }
 

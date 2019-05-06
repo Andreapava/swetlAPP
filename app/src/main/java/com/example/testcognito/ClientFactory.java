@@ -2,10 +2,13 @@ package com.example.testcognito;
 import android.content.Context;
 import android.util.Log;
 
+import com.amazonaws.amplify.generated.graphql.CreateUserMutation;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.sigv4.CognitoUserPoolsAuthProvider;
+
+import type.CreateUserInput;
 
 public class ClientFactory {
     private static volatile AWSAppSyncClient client;
@@ -29,6 +32,8 @@ public class ClientFactory {
                     }).build();
         }
     }
+
+
 
     public static synchronized AWSAppSyncClient appSyncClient() {
         return client;
