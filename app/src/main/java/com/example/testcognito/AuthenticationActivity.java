@@ -70,6 +70,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                         break;
                     case SIGNED_OUT_USER_POOLS_TOKENS_INVALID:
                         Log.i("userState", "need to login again");
+                        showSignIn();
                         break;
                     case SIGNED_OUT_FEDERATED_TOKENS_INVALID:
                         Log.i("userState", "user logged in via federation, but currently needs new tokens");

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.testcognito.Connector;
@@ -37,7 +38,7 @@ public class AvailableConnectorRecycleViewAdapter extends RecyclerView.Adapter<A
         holder.connector = mConnector.get(position);
 
         holder.connectorName.setText( mConnector.get(position).toString() );
-
+        holder.imageView.setImageResource(mConnector.get(position).getImgSrc());
         //add connector to active
         holder.connectorAdd.setOnClickListener(view -> {
             activity.findViewById(R.id.buttonSaveConnectors).setVisibility(View.VISIBLE);
@@ -62,10 +63,12 @@ public class AvailableConnectorRecycleViewAdapter extends RecyclerView.Adapter<A
         public final TextView connectorName;
         public final Button connectorAdd;
         public Connector connector;
+        public ImageView imageView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             this.parentView = itemView;
+            this.imageView = itemView.findViewById(R.id.imageView);
             this.connectorName = itemView.findViewById(R.id.list_item_activeconnector_name);
             this.connectorAdd = itemView.findViewById(R.id.buttonAddConnector);
         }

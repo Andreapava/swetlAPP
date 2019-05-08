@@ -16,7 +16,7 @@ public class Connector implements Serializable {
     private String param1;
     private String param2;
     private String param3;
-
+    private int imgRes;
     public static class ConnectorBuilder {
         //TODO: pulisci attributi inutili
         private String cnName;
@@ -28,10 +28,11 @@ public class Connector implements Serializable {
         private String param1;
         private String param2;
         private String param3;
+        private int imgRes;
 
 
         public Connector build() {
-            return new Connector(cnName,cnType,cnAction,paramFields,paramNumber,cnPosition,param1,param2,param3);
+            return new Connector(cnName,cnType,cnAction,paramFields,paramNumber,cnPosition,param1,param2,param3,imgRes);
         }
         public ConnectorBuilder name(String name) {
             this.cnName = name;
@@ -77,8 +78,15 @@ public class Connector implements Serializable {
             this.param3 = param;
             return this;
         }
+
+        public ConnectorBuilder imgRes(int imgRes) {
+            this.imgRes=imgRes;
+            return this;
+        }
     }
-    private Connector(String cnName, String cnType, String cnDef, List<String> paramFields, Integer paramNumber, Integer cnPosition, String param1, String param2, String param3) {
+    private Connector(String cnName, String cnType, String cnDef, List<String> paramFields,
+                      Integer paramNumber, Integer cnPosition, String param1, String param2,
+                      String param3,int imgRes) {
         this.cnName=cnName;
         this.cnType=cnType;
         this.cnAction =cnDef;
@@ -89,6 +97,7 @@ public class Connector implements Serializable {
         this.param2=param2;
         this.param3=param3;
         this.beenSet=false;
+        this.imgRes=imgRes;
     }
 
 
@@ -122,6 +131,8 @@ public class Connector implements Serializable {
     public String getType() {
         return cnType;
     }
+
+    public int getImgSrc() {return imgRes; }
 
     public String getName() {
         return cnName;

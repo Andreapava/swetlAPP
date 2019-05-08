@@ -33,29 +33,34 @@ public class AddWorkflowActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                    save();
+                save();
             }
         });
     }
 
     //costrusico nuovo elemento workflow, lo metto in lista wfList e faccio query di inserimento
-    private void save(){
+    private void save() {
         final String name = ((EditText) findViewById(R.id.editTxt_name)).getText().toString();
-        MainActivity.wfList.add(WorkflowInput.builder()
-                        .def(" ")
-                        .idwf(String.valueOf(MainActivity.wfList.hashCode()))
-                        .name(name)
-                        .build());
+        if (checkLetters(name)) {
+            MainActivity.wfList.add(WorkflowInput.builder()
+                    .def(" ")
+                    .idwf(String.valueOf(MainActivity.wfList.hashCode()))
+                    .name(name.toLowerCase())
+                    .build());
 
-        UpdateUserInput input = UpdateUserInput.builder()
-                .id(AWSMobileClient.getInstance().getUsername())
-                .workflow(MainActivity.wfList)
-                .build();
+            UpdateUserInput input = UpdateUserInput.builder()
+                    .id(AWSMobileClient.getInstance().getUsername())
+                    .workflow(MainActivity.wfList)
+                    .build();
 
-        UpdateUserMutation updateUserMutation =  UpdateUserMutation.builder()
-                .input(input)
-                .build();
-        com.example.testcognito.ClientFactory.appSyncClient().mutate(updateUserMutation).enqueue(mutateCallback);
+            UpdateUserMutation updateUserMutation = UpdateUserMutation.builder()
+                    .input(input)
+                    .build();
+            com.example.testcognito.ClientFactory.appSyncClient().mutate(updateUserMutation).enqueue(mutateCallback);
+        } else {
+            Toast.makeText(this, "The name of the workflow " +
+                    "should contain only letters and no spaces", Toast.LENGTH_LONG).show();
+        }
     }
 
     // Mutation callback code per aggiunta wf
@@ -83,4 +88,18 @@ public class AddWorkflowActivity extends AppCompatActivity {
             });
         }
     };
+
+    boolean checkLetters(String s) {
+        if (s == null) // checks if the String is null
+        {
+            return false;
+        }
+        char[] chars = s.toCharArray();
+        for (char c : chars) {
+            if (!Character.isLetter(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

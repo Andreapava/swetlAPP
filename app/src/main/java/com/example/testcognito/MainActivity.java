@@ -145,6 +145,9 @@ public class MainActivity extends AppCompatActivity {
                     ? AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name")
                     : AWSMobileClient.getInstance().getUsername();
         }catch(Exception e){
+
+            //TODO: probabilmente qua se l utente non fornisce nickname succedono casini
+            //AWSMobileClient.getInstance().signOut();
             Log.i("ANDREA exception",e.getLocalizedMessage());
         }finally {
             CreateUserInput input = CreateUserInput.builder()

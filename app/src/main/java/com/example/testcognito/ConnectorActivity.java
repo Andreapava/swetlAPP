@@ -109,6 +109,7 @@ public class ConnectorActivity extends AppCompatActivity {
                 .name("Feed RSS")
                 .action("read_feed")
                 .addField("URL")
+                .imgRes(R.drawable.rss)
                 .build();
         mConnectors.add(feedRSS);
         mAvailableConnectorAdapter.notifyItemInserted(mConnectors.indexOf(feedRSS));
@@ -118,6 +119,7 @@ public class ConnectorActivity extends AppCompatActivity {
                 .name("Message")
                 .action("custom_message")
                 .addField("Message body")
+                .imgRes(R.drawable.love)
                 .build();
         mConnectors.add(message);
 
@@ -127,6 +129,7 @@ public class ConnectorActivity extends AppCompatActivity {
                 .action("weather")
                 .addField("longitude")
                 .addField("latitude")
+                .imgRes(R.drawable.cloudy)
                 .build();
         mConnectors.add(meteo);
 
@@ -134,6 +137,7 @@ public class ConnectorActivity extends AppCompatActivity {
                 .name("Read Tweet")
                 .action("read_tweet")
                 .addField("account name (es. @unipd)")
+                .imgRes(R.drawable.tweet)
                 .build();
         mConnectors.add(twitterRead);
 
@@ -141,6 +145,7 @@ public class ConnectorActivity extends AppCompatActivity {
                 .name("Write Tweet")
                 .action("write_tweet")
                 .addField("Tweet body")
+                .imgRes(R.drawable.twitter_write)
                 .build();
         mConnectors.add(twitterWrite);
 
@@ -148,6 +153,7 @@ public class ConnectorActivity extends AppCompatActivity {
                 .name("TV Schedule")
                 .action("tv_schedule")
                 .addField("TODO")
+                .imgRes(R.drawable.televisions)
                 .build();
         mConnectors.add(tvSchedule);
 
@@ -195,13 +201,14 @@ public class ConnectorActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        inputUpdateWf.clear();
+    }
     //TODO: assicurati che gli indici e dimensioni tra le due liste siano coerenti
     public void removeConnectorFromActive(Connector cn,int position) {
-        Log.d("CONNPOS,ADPTPOS,CS,APTS",
-                String.valueOf(cn.getPosition())+" , "
-        +String.valueOf(mActiveConnectors.indexOf(cn))+" , "
-        +inputUpdateWf.size()+" , "
-        +mActiveConnectors.size());
+
 
         Log.i("ANDREA POSITION",String.valueOf(position));
         Log.i("ANDREA InputUWF size",String.valueOf(inputUpdateWf.size()));
