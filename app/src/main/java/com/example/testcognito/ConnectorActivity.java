@@ -157,6 +157,13 @@ public class ConnectorActivity extends AppCompatActivity {
                 .build();
         mConnectors.add(tvSchedule);
 
+        Connector trello=new Connector.ConnectorBuilder()
+                .name("Trello")
+                .action("trello")
+                .build();
+
+        mConnectors.add(trello);
+
 
         mAvailableConnectorAdapter.notifyItemInserted(mConnectors.indexOf(feedRSS));
 
@@ -169,11 +176,15 @@ public class ConnectorActivity extends AppCompatActivity {
         //cn.setPosition(mActiveConnectors.indexOf(cn));
        // Log.i("ANDREA POS",String.valueOf(cn.getPosition()));
         Boolean cnSetted =false;
-
-        Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
-        intent.putExtra("connector",cn);
-        ConnectorActivity.this.startActivityForResult(intent,SETTED_CN_REQUEST);
-
+        if(cn.getAction().equals("trello")) {
+            Intent intent = new Intent(ConnectorActivity.this, trello.class);
+            intent.putExtra("connector",cn);
+            ConnectorActivity.this.startActivityForResult(intent,SETTED_CN_REQUEST);
+        }else {
+            Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
+            intent.putExtra("connector", cn);
+            ConnectorActivity.this.startActivityForResult(intent, SETTED_CN_REQUEST);
+        }
     }
 
     //l'effettivo output a video nella recycle lo fa questo metodo
