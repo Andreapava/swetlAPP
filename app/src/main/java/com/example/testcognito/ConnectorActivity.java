@@ -64,14 +64,16 @@ public class ConnectorActivity extends AppCompatActivity {
     private AvailableConnectorRecycleViewAdapter mAvailableConnectorAdapter =
             new AvailableConnectorRecycleViewAdapter(mConnectors, this);
 
-
     private int currentWfPos;
 
+
     static final int SETTED_CN_REQUEST = 1;
+
     Boolean cnSetted=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         mActiveConnectors.clear();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connector);
@@ -85,9 +87,8 @@ public class ConnectorActivity extends AppCompatActivity {
         mRecyclerViewActive = findViewById(R.id.activeConnectorsRecycle);
         mRecyclerViewActive.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         mRecyclerViewActive.setAdapter(mActiveConnectorAdapter);
-
-        currentWfPos = getIntent().getIntExtra("currentWfpos",0);
-        Log.i("Current WF: ", String.valueOf(currentWfPos));
+        currentWfPos = getIntent().getIntExtra("currentWfPos",-1);
+        Log.i("ANDREA oncreateWF", String.valueOf(currentWfPos));
 
 
 
@@ -102,6 +103,7 @@ public class ConnectorActivity extends AppCompatActivity {
 
 
     }
+
 
     public void setConnectors() {
         // 1. CONNECTOR - Feed RSS
@@ -160,6 +162,7 @@ public class ConnectorActivity extends AppCompatActivity {
         Connector trello=new Connector.ConnectorBuilder()
                 .name("Trello")
                 .action("trello")
+                .imgRes(R.drawable.trello)
                 .build();
 
         mConnectors.add(trello);
@@ -192,6 +195,7 @@ public class ConnectorActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+       currentWfPos=data.getIntExtra("currentWfPos",-1);
         switch(requestCode) {
             case (SETTED_CN_REQUEST) : {
                 if (resultCode == Activity.RESULT_OK) {
@@ -199,6 +203,7 @@ public class ConnectorActivity extends AppCompatActivity {
                     Log.i("ANDREA DISPLAY CN",String.valueOf(cnSetted));
                     if(cnSetted) {
                         Connector toShow = (Connector) data.getSerializableExtra("cn");
+
                         mActiveConnectors.add(toShow);
                         mActiveConnectorAdapter.setItems(mActiveConnectors);
                         mActiveConnectorAdapter.notifyDataSetChanged();
@@ -211,6 +216,8 @@ public class ConnectorActivity extends AppCompatActivity {
             }
         }
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -239,8 +246,12 @@ public class ConnectorActivity extends AppCompatActivity {
         intent.putExtra("connector",cn);
         if(inputUpdateWf.get(position)!=null) {
             intent.putExtra("parameters", inputUpdateWf.get(position));
+            intent.putExtra("updateWFpos",position);
+            intent.putExtra("currentWfPos",currentWfPos);
         }
+        findViewById(R.id.buttonSaveConnectors).setVisibility(View.VISIBLE);
         ConnectorActivity.this.startActivity(intent);
+
     }
 
     //query di update per wf corrente
@@ -255,13 +266,14 @@ public class ConnectorActivity extends AppCompatActivity {
                 .build();
         com.example.testcognito.ClientFactory.appSyncClient().mutate(updateUserMutation).enqueue(null);
     Toast.makeText(ConnectorActivity.this,"Workflow saved!",Toast.LENGTH_LONG).show();
+        findViewById(R.id.buttonSaveConnectors).setVisibility(View.GONE);
     }
 
     //aggiorna il workflow corrente con i connettori settati e restituisce la lista di workflow
     //è più un "copia modifica e sostituisci" wf
     //TODO: attaccare i nuovi connettori a quelli vecchi gia presenti
     public List<WorkflowInput> updateWfDefinition() {
-        WorkflowInput aux = MainActivity.wfList.get(currentWfPos);
+        WorkflowInput aux = MainActivity.wfList.get(MainActivity.nWfPos);
         WorkflowInput toUpdate = WorkflowInput.builder()
                 .idwf(aux.idwf())
                 .def(createWFdef(inputUpdateWf).toString()
@@ -272,10 +284,10 @@ public class ConnectorActivity extends AppCompatActivity {
                 .name(aux.name())
                 .build();
 
-        MainActivity.wfList.add(currentWfPos,toUpdate);
+        MainActivity.wfList.add(MainActivity.nWfPos,toUpdate);
 
-        if(MainActivity.wfList.get(currentWfPos+1)!=null) {
-            MainActivity.wfList.remove(currentWfPos+1);
+        if(MainActivity.wfList.get(MainActivity.nWfPos+1)!=null) {
+            MainActivity.wfList.remove(MainActivity.nWfPos+1);
         }
         Log.i("ANDREA UPDATE", inputUpdateWf.toString());
         return MainActivity.wfList;
@@ -304,8 +316,9 @@ public class ConnectorActivity extends AppCompatActivity {
                     List<Connector> auxWfList = new ArrayList<>();
                     for(GetUserQuery.Workflow w : response.data().getUser().workflow())
                     {
-                        if(w.idwf().equals(MainActivity.wfList.get(currentWfPos).idwf())) {
+                        if(w.idwf().equals(MainActivity.wfList.get(MainActivity.nWfPos).idwf())) {
                             Log.i("ANDREA FINDWF", w.def());
+                            Log.i("ANDREA WFNAME", w.name());
                             try {
                                 JSONObject j = new JSONObject(w.def());
                                 JSONArray jsonArray = j.getJSONArray("actions_records");

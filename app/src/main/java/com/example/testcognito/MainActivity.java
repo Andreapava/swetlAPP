@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.amazonaws.amplify.generated.graphql.CreateUserMutation;
 import com.amazonaws.amplify.generated.graphql.GetUserQuery;
+import com.amazonaws.auth.AWSCognitoIdentityProvider;
 import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.SignInUIOptions;
@@ -35,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     public com.example.testcognito.WorkflowAdapter mAdapter;
     private GraphQLCall.Callback<CreateUserMutation.Data> mutationCallback;
     public static List<WorkflowInput> wfList = new ArrayList<>();
+    private static boolean userInitialized = false;
+    private static String userId;
+    public static int nWfPos;
 
     private final String TAG = MainActivity.class.getSimpleName();
 
@@ -53,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         com.example.testcognito.ClientFactory.init(this);
 
-        initializeUser();
+
 
         //bottone + fa partire activity di aggiunta nuovo workflow
         FloatingActionButton btnAddWorkflow = findViewById(R.id.btn_addWorkflow);
@@ -71,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         // aggiorna la lista di workflow
+        initializeUser();
         queryWfList();
 
     }
@@ -101,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     public void queryWfList(){
         com.example.testcognito.ClientFactory.appSyncClient()
                 .query(GetUserQuery.builder()
-                        .id(AWSMobileClient.getInstance().getUsername())
+                        .id(userId)
                         .build())
                 .responseFetcher(AppSyncResponseFetchers.CACHE_AND_NETWORK)
                 .enqueue(getWfListCallback);
@@ -138,28 +143,34 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public static void initializeUser(){
-        String nickName = AWSMobileClient.getInstance().getUsername();
-        try {
-            //bisognerebbe settare given name obbligatorio da console cognito, questo è solo un workaround
-             nickName = AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name") != null
-                    ? AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name")
-                    : AWSMobileClient.getInstance().getUsername();
-        }catch(Exception e){
+        if(!userInitialized) {
+            String nickName = AWSMobileClient.getInstance().getUsername();
+            userId = AWSMobileClient.getInstance().getUsername();
+            //Log.i("ANDREA user name", nickName);
+            try {
+                //bisognerebbe settare given name obbligatorio da console cognito, questo è solo un workaround
+               nickName = AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name");
 
-            //TODO: probabilmente qua se l utente non fornisce nickname succedono casini
-            //AWSMobileClient.getInstance().signOut();
-            Log.i("ANDREA exception",e.getLocalizedMessage());
-        }finally {
-            CreateUserInput input = CreateUserInput.builder()
-                    .id(AWSMobileClient.getInstance().getUsername())
-                    .name(nickName)
-                    .build();
+                nickName = AWSMobileClient.getInstance().getUserAttributes().get("given_name");
+            } catch (Exception e) {
 
-            CreateUserMutation addUserMutation = CreateUserMutation.builder()
-                    .input(input)
-                    .build();
-            com.example.testcognito.ClientFactory.appSyncClient().mutate(addUserMutation).enqueue(null);
+                //TODO: probabilmente qua se l utente non fornisce nickname succedono casini
+                //AWSMobileClient.getInstance().signOut();
+                Log.i("ANDREA initialize", e.getLocalizedMessage());
+               // nickName = " ";
+            } finally {
+                CreateUserInput input = CreateUserInput.builder()
+                        .id(AWSMobileClient.getInstance().getUsername())
+                        .name(nickName)
+                        .build();
 
+                CreateUserMutation addUserMutation = CreateUserMutation.builder()
+                        .input(input)
+                        .build();
+                com.example.testcognito.ClientFactory.appSyncClient().mutate(addUserMutation).enqueue(null);
+                userInitialized = true;
+
+            }
         }
 
 

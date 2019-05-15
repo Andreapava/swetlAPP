@@ -68,6 +68,8 @@ public class SetConnectorActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private Boolean cnSetted;
     private String exParameters;
+    private int updateWfPos;
+    private int currentWfPos;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -75,6 +77,8 @@ public class SetConnectorActivity extends AppCompatActivity {
 
         connector = (Connector) getIntent().getSerializableExtra("connector");
         exParameters = getIntent().getStringExtra("parameters");
+        updateWfPos = getIntent().getIntExtra("updateWFpos",-1);
+        currentWfPos = getIntent().getIntExtra("currentWfPos",-1);
             setContentView(R.layout.activity_set_connector);
 
             fieldList = connector.getFields();
@@ -129,9 +133,15 @@ public class SetConnectorActivity extends AppCompatActivity {
                 connector.setBeenSet(true);
                 cnSetted=true;
                 //lo salvo nella lista inputUpdateWf
-                ConnectorActivity.inputUpdateWf.add(jsonObject.toString());
-                Log.i("ANDREA UPDATE", ConnectorActivity.inputUpdateWf.toString());
-
+                if(updateWfPos!=-1)
+                {
+                    ConnectorActivity.inputUpdateWf.remove(updateWfPos);
+                    ConnectorActivity.inputUpdateWf.add(updateWfPos,jsonObject.toString());
+                }
+                else {
+                    ConnectorActivity.inputUpdateWf.add(jsonObject.toString());
+                    Log.i("ANDREA UPDATE", ConnectorActivity.inputUpdateWf.toString());
+                }
                 //sostituisco i parametri del connettore vecchio se presente
                 //TODO: aggiornamento connettori
             /*if(ConnectorActivity.inputUpdateWf.get(connector.getPosition()+1)!=null)
@@ -142,6 +152,7 @@ public class SetConnectorActivity extends AppCompatActivity {
             Intent resultIntent = new Intent();
             resultIntent.putExtra("cnSetted", cnSetted);
             resultIntent.putExtra("cn",connector);
+
             setResult(Activity.RESULT_OK, resultIntent);
             SetConnectorActivity.this.finish();
         }
@@ -150,6 +161,12 @@ public class SetConnectorActivity extends AppCompatActivity {
                     "Please provide the fields with some input",Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("currentWfPos",currentWfPos);
+    }
     public JSONObject buildJsonConn(Connector c, List<String> pL) {
         Map<String, Object> connMap = new HashMap<>();
         connMap.put("action",c.getAction());

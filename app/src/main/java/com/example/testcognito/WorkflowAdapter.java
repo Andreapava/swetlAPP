@@ -100,7 +100,8 @@ public class WorkflowAdapter extends RecyclerView.Adapter<WorkflowAdapter.ViewHo
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context , ConnectorActivity.class);
-                    intent.putExtra("currentWfpos",getAdapterPosition());
+                    intent.putExtra("currentWfPos",getAdapterPosition());
+                    MainActivity.nWfPos=getAdapterPosition();
                     context.startActivity(intent);
                 }
             });
