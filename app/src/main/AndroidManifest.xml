@@ -8,8 +8,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -18,11 +17,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".trello"></activity>
+        <activity android:name=".TwitterConn"></activity>
+        <activity android:name=".trello" />
         <activity
             android:name=".SetConnectorActivity"
             android:label="@string/setConnAct"
-            android:parentActivityName=".ConnectorActivity"></activity>
+            android:parentActivityName=".ConnectorActivity" />
         <activity
             android:name=".AddWorkflowActivity"
             android:parentActivityName=".MainActivity" />

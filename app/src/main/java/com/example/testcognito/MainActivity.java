@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_logout: {
                 //Intent i = new Intent(MainActivity.this, AuthenticationActivity.class);
                 AWSMobileClient.getInstance().signOut();
+                SetConnectorActivity.tTokenSet=false;
                 //IdentityManager.getDefaultIdentityManager().signOut();
                // startActivity(i);
                 return true;
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     public void queryWfList(){
         com.example.testcognito.ClientFactory.appSyncClient()
                 .query(GetUserQuery.builder()
-                        .id(userId)
+                        .id(AWSMobileClient.getInstance().getUsername())
                         .build())
                 .responseFetcher(AppSyncResponseFetchers.CACHE_AND_NETWORK)
                 .enqueue(getWfListCallback);
@@ -144,14 +145,15 @@ public class MainActivity extends AppCompatActivity {
 
     public static void initializeUser(){
         if(!userInitialized) {
+           // AWSMobileClient.getInstance().refresh();
             String nickName = AWSMobileClient.getInstance().getUsername();
-            userId = AWSMobileClient.getInstance().getUsername();
+
             //Log.i("ANDREA user name", nickName);
             try {
                 //bisognerebbe settare given name obbligatorio da console cognito, questo è solo un workaround
-               nickName = AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name");
+              nickName = AWSMobileClient.getInstance().getTokens().getIdToken().getClaim("given_name");
 
-                nickName = AWSMobileClient.getInstance().getUserAttributes().get("given_name");
+                //nickName = AWSMobileClient.getInstance().getUserAttributes().get("given_name");
             } catch (Exception e) {
 
                 //TODO: probabilmente qua se l utente non fornisce nickname succedono casini

@@ -146,15 +146,20 @@ public class ConnectorActivity extends AppCompatActivity {
         Connector twitterWrite= new Connector.ConnectorBuilder()
                 .name("Write Tweet")
                 .action("write_tweet")
-                .addField("Tweet body")
                 .imgRes(R.drawable.twitter_write)
                 .build();
         mConnectors.add(twitterWrite);
+        Connector homeTweet=new Connector.ConnectorBuilder()
+                .name("Home Tweet")
+                .action("home_tweet")
+                .imgRes(R.drawable.home)
+                .build();
 
+        mConnectors.add(homeTweet);
         Connector tvSchedule= new Connector.ConnectorBuilder()
                 .name("TV Schedule")
                 .action("tv_schedule")
-                .addField("TODO")
+                .addField("Channel name")
                 .imgRes(R.drawable.televisions)
                 .build();
         mConnectors.add(tvSchedule);
@@ -168,6 +173,8 @@ public class ConnectorActivity extends AppCompatActivity {
         mConnectors.add(trello);
 
 
+
+
         mAvailableConnectorAdapter.notifyItemInserted(mConnectors.indexOf(feedRSS));
 
         //Set the "SAVE EDITS" button as not visible
@@ -179,15 +186,17 @@ public class ConnectorActivity extends AppCompatActivity {
         //cn.setPosition(mActiveConnectors.indexOf(cn));
        // Log.i("ANDREA POS",String.valueOf(cn.getPosition()));
         Boolean cnSetted =false;
-        if(cn.getAction().equals("trello")) {
-            Intent intent = new Intent(ConnectorActivity.this, trello.class);
-            intent.putExtra("connector",cn);
-            ConnectorActivity.this.startActivityForResult(intent,SETTED_CN_REQUEST);
-        }else {
-            Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
-            intent.putExtra("connector", cn);
-            ConnectorActivity.this.startActivityForResult(intent, SETTED_CN_REQUEST);
-        }
+
+            if (cn.getAction().equals("trello")) {
+                Intent intent = new Intent(ConnectorActivity.this, trello.class);
+                intent.putExtra("connector", cn);
+                ConnectorActivity.this.startActivityForResult(intent, SETTED_CN_REQUEST);
+            } else {
+                Intent intent = new Intent(ConnectorActivity.this, SetConnectorActivity.class);
+                intent.putExtra("connector", cn);
+                ConnectorActivity.this.startActivityForResult(intent, SETTED_CN_REQUEST);
+            }
+
     }
 
     //l'effettivo output a video nella recycle lo fa questo metodo
@@ -195,7 +204,7 @@ public class ConnectorActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-       currentWfPos=data.getIntExtra("currentWfPos",-1);
+      // currentWfPos=data.getIntExtra("currentWfPos",-1);
         switch(requestCode) {
             case (SETTED_CN_REQUEST) : {
                 if (resultCode == Activity.RESULT_OK) {
@@ -389,6 +398,8 @@ public class ConnectorActivity extends AppCompatActivity {
                 return "Read Tweet";
             case "write_tweet":
                 return "Write Tweet";
+            case "home_tweet":
+                return "Home Tweet";
             case "tv_schedule":
                 return "TV Schedule";
         }

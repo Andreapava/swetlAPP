@@ -91,7 +91,8 @@ public class AuthenticationActivity extends AppCompatActivity {
                     SignInUIOptions.builder().logo(R.drawable.logo_swetlapp).nextActivity(MainActivity.class).build());
            // initializeUser();
         } catch (Exception e) {
-            Log.e(TAG, e.toString()+"questo");
+            Log.e(TAG+"dentro showsignin", e.toString());
+            AWSMobileClient.getInstance().refresh();
         }
     }
 

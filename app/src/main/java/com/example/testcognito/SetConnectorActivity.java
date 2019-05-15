@@ -70,12 +70,24 @@ public class SetConnectorActivity extends AppCompatActivity {
     private String exParameters;
     private int updateWfPos;
     private int currentWfPos;
+    public static boolean tTokenSet = false;
+    private static final int SETTED_TOKEN_REQUEST=1;
+    public static String token;
+    public static String secret;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+            connector = (Connector) getIntent().getSerializableExtra("connector");
+            if ((connector.getAction().equals("write_tweet")||
+                    connector.getAction().equals("home_tweet"))&&!tTokenSet) {
 
-        connector = (Connector) getIntent().getSerializableExtra("connector");
+                    Intent intent = new Intent(SetConnectorActivity.this, TwitterConn.class);
+                    SetConnectorActivity.this.startActivity(intent);
+
+            }
+
         exParameters = getIntent().getStringExtra("parameters");
         updateWfPos = getIntent().getIntExtra("updateWFpos",-1);
         currentWfPos = getIntent().getIntExtra("currentWfPos",-1);
@@ -98,6 +110,18 @@ public class SetConnectorActivity extends AppCompatActivity {
 
     }
     @Override
+    public void onResume(){
+        super.onResume();
+        Log.i("ANDREA TOKENS",secret+token);
+        if((connector.getAction().equals("write_tweet")||(connector.getAction().equals("home_tweet")))&&tTokenSet){
+            List<String> pList= new ArrayList<>();
+            pList.add(token);
+            pList.add(secret);
+            updateWorkflow(pList);
+        }
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
 
@@ -109,6 +133,7 @@ public class SetConnectorActivity extends AppCompatActivity {
                     getLastLocation();
                 }
             }
+
 
     }
 
@@ -123,7 +148,13 @@ public class SetConnectorActivity extends AppCompatActivity {
     //aggiunge o modifica parametri connettore e li salva in una lista
     // utilizzata da connectorActivity
     public void saveAllParameters(View view) {
-        List <String> pList = mAdapter.retrieveParameters();
+       updateWorkflow(null);
+    }
+
+    public void updateWorkflow(List <String> pList) {
+        if(pList==null) {
+            pList = mAdapter.retrieveParameters();
+        }
         if (!pList.isEmpty()) {
             try {
                 //creo JSON del connettore
@@ -160,7 +191,6 @@ public class SetConnectorActivity extends AppCompatActivity {
             Toast.makeText(SetConnectorActivity.this,
                     "Please provide the fields with some input",Toast.LENGTH_LONG).show();
     }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
