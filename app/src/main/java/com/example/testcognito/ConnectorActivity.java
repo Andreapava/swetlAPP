@@ -232,6 +232,7 @@ public class ConnectorActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         inputUpdateWf.clear();
+        MainActivity.nWfPos=-1;
     }
     //TODO: assicurati che gli indici e dimensioni tra le due liste siano coerenti
     public void removeConnectorFromActive(Connector cn,int position) {
