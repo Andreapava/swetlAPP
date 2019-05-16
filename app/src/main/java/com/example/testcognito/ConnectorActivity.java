@@ -60,13 +60,9 @@ public class ConnectorActivity extends AppCompatActivity {
 
     private ActiveConnectorRecycleViewAdapter mActiveConnectorAdapter =
             new ActiveConnectorRecycleViewAdapter(mActiveConnectors, this);
-
     private AvailableConnectorRecycleViewAdapter mAvailableConnectorAdapter =
             new AvailableConnectorRecycleViewAdapter(mConnectors, this);
-
     private int currentWfPos;
-
-
     static final int SETTED_CN_REQUEST = 1;
 
     Boolean cnSetted=false;
@@ -90,20 +86,12 @@ public class ConnectorActivity extends AppCompatActivity {
         currentWfPos = getIntent().getIntExtra("currentWfPos",-1);
         Log.i("ANDREA oncreateWF", String.valueOf(currentWfPos));
 
-
-
         //mostra i connettori già impostati del workflow
         retrieveUserConnectors();
 
         //mostra i connettori disponibili
         setConnectors();
-
-
-
-
-
     }
-
 
     public void setConnectors() {
         // 1. CONNECTOR - Feed RSS
@@ -172,11 +160,7 @@ public class ConnectorActivity extends AppCompatActivity {
 
         mConnectors.add(trello);
 
-
-
-
         mAvailableConnectorAdapter.notifyItemInserted(mConnectors.indexOf(feedRSS));
-
         //Set the "SAVE EDITS" button as not visible
         findViewById(R.id.buttonSaveConnectors).setVisibility(View.GONE);
     }
@@ -232,6 +216,8 @@ public class ConnectorActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         inputUpdateWf.clear();
+        mActiveConnectors.clear();
+        mActiveConnectorAdapter.setItems(mActiveConnectors);
         MainActivity.nWfPos=-1;
     }
     //TODO: assicurati che gli indici e dimensioni tra le due liste siano coerenti
