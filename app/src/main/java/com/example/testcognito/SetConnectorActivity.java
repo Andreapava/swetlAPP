@@ -118,6 +118,11 @@ public class SetConnectorActivity extends AppCompatActivity {
             pList.add(token);
             pList.add(secret);
             updateWorkflow(pList);
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("cnSetted", cnSetted);
+            resultIntent.putExtra("cn",connector);
+
+            setResult(Activity.RESULT_OK, resultIntent);
         }
     }
 
