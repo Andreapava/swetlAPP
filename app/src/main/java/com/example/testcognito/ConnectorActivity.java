@@ -212,7 +212,7 @@ public class ConnectorActivity extends AppCompatActivity {
                     Log.i("ANDREA DISPLAY CN",String.valueOf(cnSetted));
                     if(cnSetted) {
                         Connector toShow = (Connector) data.getSerializableExtra("cn");
-
+                        updateDB();
                         mActiveConnectors.add(toShow);
                         mActiveConnectorAdapter.setItems(mActiveConnectors);
                         mActiveConnectorAdapter.notifyDataSetChanged();
@@ -262,11 +262,16 @@ public class ConnectorActivity extends AppCompatActivity {
         findViewById(R.id.buttonSaveConnectors).setVisibility(View.VISIBLE);
         ConnectorActivity.this.startActivity(intent);
 
+
     }
 
     //query di update per wf corrente
     //TODO: callback
     public void saveEdit(View view) {
+     updateDB();
+    }
+
+    public void updateDB(){
         UpdateUserInput input = UpdateUserInput.builder()
                 .id(AWSMobileClient.getInstance().getUsername())
                 .workflow(updateWfDefinition())
@@ -275,10 +280,9 @@ public class ConnectorActivity extends AppCompatActivity {
                 .input(input)
                 .build();
         com.example.testcognito.ClientFactory.appSyncClient().mutate(updateUserMutation).enqueue(null);
-    Toast.makeText(ConnectorActivity.this,"Workflow saved!",Toast.LENGTH_LONG).show();
+        Toast.makeText(ConnectorActivity.this,"Workflow saved!",Toast.LENGTH_LONG).show();
         findViewById(R.id.buttonSaveConnectors).setVisibility(View.GONE);
     }
-
     //aggiorna il workflow corrente con i connettori settati e restituisce la lista di workflow
     //è più un "copia modifica e sostituisci" wf
     //TODO: attaccare i nuovi connettori a quelli vecchi gia presenti
